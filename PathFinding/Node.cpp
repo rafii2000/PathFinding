@@ -51,6 +51,7 @@ void Node::eraseObstacles()
 void Node::draw()
 {
 	
+
 	//allow or block dragging node
 	if (nodeType == START_NODE and sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) == false and sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) == false) {
 		if (isMouseOn()) {
@@ -181,11 +182,17 @@ void Node::draw()
 	}
 	
 	
+	//TODO: if mouseToIndex(x,y) == this->node then highlight else return default color
 	window->draw(node);
 
 }
 
 void Node::draw2()
+{
+	window->draw(node);
+}
+
+void Node::draw3()
 {
 	window->draw(node);
 }

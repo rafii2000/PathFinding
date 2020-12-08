@@ -4,18 +4,17 @@
 #include "SFML/Graphics.hpp"
 
 class Node;
+class Board;
+struct Cords;
+struct WindowElements;
+
 
 extern bool dragStartNode;
 extern bool dragEndNode;
-extern Node *previousStartNode; //indicate the last good node that mouse over was
+extern Node* previousStartNode; //indicate the last good node that mouse over was
 extern Node* previousEndNode; //indicate the last good node that mouse over was
-extern Node *currentNode; //indicate the node that mouse is over now
+extern Node* currentNode; //indicate the node that mouse is over now
 
-//define node types
-//const std::string startNode = "startNode";
-//const std::string endNode = "startNode";
-//const std::string obstacles = "obstacles";
-//const std::string walkable = "walkable";
 
 const std::string START_NODE = "startNode";
 const std::string END_NODE = "endNode";
@@ -26,8 +25,23 @@ const std::string WALKABLE = "walkable";
 class Node: sf::RectangleShape
 {
 
+
 friend class A_star;
 friend class Board;
+friend void mouseFunction(Board& board, int mouse_x, int mouse_y);
+friend void putObstacles(Board& board);
+friend void eraseObstacles(Board& board);
+friend Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y);
+friend std::string getNodeType(Board& board);
+friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
+
+friend Node* getCurrentNode(Board& board);
+friend void renderingThread(WindowElements* we);
+
+
+friend int main(); //to jest mocno niefajne
+
+
 
 private:
 
@@ -39,6 +53,7 @@ private:
 	int gCost; //distance form starting node
 	int hCost; //distance from ending node
 	int fCost; //sum gCost + hCost
+	bool isDiscovered = false;
 	std::string nodeType; // W-walkable | O-obstacle | S-starNode | E-endNode
 
 
@@ -102,8 +117,10 @@ public:
 
 	void draw2();
 
+	void draw3();
 
-	friend void mouseFunction(Board& board, int mouse_x, int mouse_y);
+
+	
 
 };
 
