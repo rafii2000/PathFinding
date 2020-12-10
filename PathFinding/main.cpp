@@ -7,14 +7,14 @@
 #include "Node.h"
 #include "Board.h"
 #include "Button.h"
-#include "A_star.h"
+
+
 
 struct  Cords
 {
     int x;
     int y;
 };
-
 
 
 
@@ -62,6 +62,10 @@ std::string currentNodeType;
 
 bool RUN_ALGORITHM = false;
 
+bool IS_PATH_FOUND = false;
+bool PATH_NOT_EXIST = false;
+
+
 
 
 
@@ -78,20 +82,17 @@ int main()
     window.setPosition(sf::Vector2i(-8, 0));
     window.setFramerateLimit(140);
 
-   
     // Create a graphical text to display
     sf::Font font;
-    if (!font.loadFromFile("arial_narrow_7.ttf"))
-        return EXIT_FAILURE;
+    if (!font.loadFromFile("arial_narrow_7.ttf")) return EXIT_FAILURE;
     sf::Text text("SFML PathFinding visualization", font, 50);
     text.setPosition(sf::Vector2f(79, 20));
-
-    //Initialize elements
+   
+    // Create a most important part of program - board of nodes
     Board nodesBoard(window, 30, 1, 58, 27);
-
-
-    
-    Button startButton(1300, 35, 130, 50, &font, "Start", 
+        
+    // Create buttons to display
+    Button startButton(1300, 35, 130, 50, &font, "Start",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), "start_btn"
@@ -108,19 +109,11 @@ int main()
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), "reset_btn"
     );
-
+    
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
     
 
-   
-
-   
-    //vizualization variables needs to be before the while loop
-    int i = 0, j = 0;
-    int col = -1;
-    int row = -1;
-
-   
+  
     // Start the game loop
     while (window.isOpen())
     {
@@ -149,7 +142,7 @@ int main()
                 }               
             }
             else if (event.type == sf::Event::MouseButtonReleased) {
-                std::cout << "released detected" << std::endl;
+                //std::cout << "released detected" << std::endl;
                
                 mouseState = RELEASED;
                 CLICK_EVENT = true;
@@ -161,11 +154,11 @@ int main()
                 //set mouse position
                 mouseX = sf::Mouse::getPosition(window).x;
                 mouseY = sf::Mouse::getPosition(window).y;
-                std::cout << "X: " <<mouseX << " Y: " << mouseY << std::endl;
+                //std::cout << "X: " <<mouseX << " Y: " << mouseY << std::endl;
 
                 //check is mouse on board 
                 isMouseOnBoard = nodesBoard.checkIsMouseOnBoard(mouseX, mouseY);
-               
+
             }    
         }
 
@@ -180,14 +173,32 @@ int main()
             nodeCol = nodeCords.y; //current which Node mouse is over
                       
         }
-
+       
         // ------ SET MAIN VARIABLES EVERY EACH ITERATION ------ //
         
 
 
 
 
-        // ------------ BORDER LOGIC FUNCTION ------------ //
+        // ------------ BUTTONS LOGIC FUNCTION ------------ //
+
+        if (isMouseOnBoard == false) {
+            sf::Vector2f Mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            startButton.update(Mouse);
+            stopButton.update(Mouse);
+            resetButton.update(Mouse);
+        }
+
+        nodesBoard.callFunctionOnButtonClick();
+
+        // ------------ BUTTONS LOGIC FUNCTION ------------ //
+
+
+
+
+
+
+        // ------------ BOARD LOGIC FUNCTION ------------ //
 
         if (isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {
 
@@ -206,7 +217,9 @@ int main()
 
         }
 
-        // ------------ BORDER LOGIC FUNCTION ------------ //
+        // ------------ BOARD LOGIC FUNCTION ------------ //
+
+
 
 
 
@@ -216,76 +229,87 @@ int main()
         if (CLICKED_BTN == START_BTN) {
             std::cout << "START_BTN" << std::endl;
             //zainicjuj rozpoczecie wizualizacji, tylko raz
-            col = nodesBoard.nodesColumnAmount;
-            row = nodesBoard.nodesRowAmount;
-            RUN_ALGORITHM = true;
+            nodesBoard.col = nodesBoard.nodesColumnAmount;
+            nodesBoard.row = nodesBoard.nodesRowAmount;
 
+            RUN_ALGORITHM = true;
             CLICKED_BTN = "";
         }
         else if (CLICKED_BTN == STOP_BTN) {
             RUN_ALGORITHM = false;
-
+            CLICKED_BTN = "";
+        }
+        else if (CLICKED_BTN == RESET_BTN and nodesBoard.boardState == ACTIVE) {
+            
+            nodesBoard.col = -1;
+            nodesBoard.row = -1;
+            nodesBoard.j = 0;
+            nodesBoard.i = 0;
+            CLICKED_BTN = "";
         }
 
 
         if (RUN_ALGORITHM == true) {
 
-            std::cout << "runAlghoritm == true" << std::endl;
-            std::cout << j << " " << i << std::endl;
-            nodesBoard.nodesBoard2D[j][i].node.setFillColor(sf::Color::Cyan);
+            //std::cout << "RUN_ALGORITHM == true" << std::endl;
+            //std::cout << j << " " << i << std::endl;
+            //nodesBoard.nodesBoard2D[nodesBoard.j][nodesBoard.i].node.setFillColor(sf::Color::Cyan);
             sf::sleep(sf::microseconds(10));
-            i++;
+            nodesBoard.i++;
+
+            nodesBoard.exploreNodes();
         }
 
 
+        //ta czesc kodu jest niepotrzebna iteracja jest na innej zasadzie
+        /*if (nodesBoard.i % nodesBoard.row == 0 and RUN_ALGORITHM == true) {
+           
+            nodesBoard.i = 0;
+            nodesBoard.j++;
+        }*/
 
-        if (i % row == 0 and RUN_ALGORITHM == true) {
-            i = 0;
-            j++;
-        }
 
-
-        //czy wizualizacja zakonczona?
-        if (j == 27 and i == 0) {
-            std::cout << "wizualizacja zakonczona" << std::endl;
-            col = -1;
-            row = -1;
-            j = 0;
-            i = 0;
+        // warunek zakonczenia wizualizacji
+        if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
             CLICKED_BTN = "";
             RUN_ALGORITHM = false;
+            nodesBoard.boardState = ACTIVE;
         }
+
+       /* if (nodesBoard.j == 27 and nodesBoard.i == 0) {
+            std::cout << "wizualizacja zakonczona" << std::endl;
+            nodesBoard.col = -1;
+            nodesBoard.row = -1;
+            nodesBoard.j = 0;
+            nodesBoard.i = 0;
+            CLICKED_BTN = "";
+            RUN_ALGORITHM = false;
+            nodesBoard.boardState = ACTIVE;
+        }*/
 
         // ------------ A* ALGHORITHM ------------ //
 
        
        
 
+
         
         // ------------ RENDERING FUNCTION ------------ //
         // Clear screen
         window.clear(sf::Color(170, 170, 170));
 
+
         // Draw elements
         window.draw(text);
-        nodesBoard.callFunctionFromButton();
+        
         nodesBoard.draw();
 
-        sf::Vector2f Mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-        if (isMouseOnBoard == false) {
-            startButton.update(Mouse);
-            stopButton.update(Mouse);
-            resetButton.update(Mouse);
-        }
+       
         startButton.render(&window);
         stopButton.render(&window);
         resetButton.render(&window);
 
 
-        
-       
-       
         // Update the window
         window.display();
 
@@ -394,7 +418,7 @@ Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y) {
     int bottomBoardBorder = lastNodeY + origin;
 
     //check if mouse is outside nodesBoard
-    std::cout << "check cursor possition" << std::endl;
+    //std::cout << "check cursor possition" << std::endl;
 
     //jak w tym miejscu nic nie zwracac zeby uniknac sprawdzania czy przeslane wspolrzedne sa dobre czy zle
     if (mouse_x <= leftBoardBorder or mouse_x >= rightBoardBorder) {
@@ -406,7 +430,7 @@ Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y) {
         return newCords; //returns bad coords
     }
         
-    std::cout << "cursor on the nodesBoard" << std::endl;
+    //std::cout << "cursor on the nodesBoard" << std::endl;
     isMouseOnBoard = true;
     //determine node position based on mouse coordinates
     int row = (mouse_x - leftBoardBorder) / (size + border);

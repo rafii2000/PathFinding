@@ -1,7 +1,9 @@
 #include "Node.h"
 
 
-
+//unused functions because logic has been changed, 
+//now any nodesBoard changes are triggered on mouse events, 
+//not trggier by Node while rendering in loop
 bool Node::isMouseOn()
 {
 
@@ -43,10 +45,6 @@ void Node::eraseObstacles()
 		nodeType = WALKABLE;
 	}
 }
-
-
-
-
 
 void Node::draw()
 {
@@ -187,12 +185,23 @@ void Node::draw()
 
 }
 
+
+
+
+
+void Node::setDefaulValues()
+{
+
+	nodeState = NONE;
+	nodeType = WALKABLE;
+	node.setFillColor(sf::Color(170, 170, 170));
+	//TODO: maybe add some A* stuff
+
+}
+
 void Node::draw2()
 {
 	window->draw(node);
 }
 
-void Node::draw3()
-{
-	window->draw(node);
-}
+

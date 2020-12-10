@@ -6,8 +6,8 @@
 class Node;
 class Board;
 struct Cords;
-struct WindowElements;
 
+enum node_states { NONE = 0, OPEN, CLOSED };
 
 extern bool dragStartNode;
 extern bool dragEndNode;
@@ -26,7 +26,7 @@ class Node: sf::RectangleShape
 {
 
 
-friend class A_star;
+
 friend class Board;
 friend void mouseFunction(Board& board, int mouse_x, int mouse_y);
 friend void putObstacles(Board& board);
@@ -36,7 +36,7 @@ friend std::string getNodeType(Board& board);
 friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
 
 friend Node* getCurrentNode(Board& board);
-friend void renderingThread(WindowElements* we);
+
 
 
 friend int main(); //to jest mocno niefajne
@@ -53,7 +53,8 @@ private:
 	int gCost; //distance form starting node
 	int hCost; //distance from ending node
 	int fCost; //sum gCost + hCost
-	bool isDiscovered = false;
+	short unsigned nodeState = NONE;
+	Node* parentNode = nullptr; // moze nie bedzie potrzebne ??
 	std::string nodeType; // W-walkable | O-obstacle | S-starNode | E-endNode
 
 
@@ -75,14 +76,17 @@ public:
 	//constructor
 	Node(){}
 
-	Node(int size, int border, int x, int y, sf::RenderWindow *w, std::string n_type) {
-		nodeSize = size;
-		nodeBorder = border;
-		screenX = x;
-		screenY = y;
-		origin = size / 2;
-		nodeType = n_type;
-		window = w;
+	Node(int nodeSize, int nodeBorder, int screenX, int screenY, int boardX, int boardY, sf::RenderWindow *window, std::string nodeType) {
+		
+		this->nodeSize = nodeSize;
+		this->nodeBorder = nodeBorder;
+		this->screenX = screenX;
+		this->screenY = screenY;
+		this->x = boardX;
+		this->y = boardY;
+		this->origin = nodeSize / 2;
+		this->nodeType = nodeType;
+		this->window = window;
 
 	
 		node.setPosition(screenX, screenY);
@@ -96,6 +100,7 @@ public:
 		if (nodeType == START_NODE) {
 			std::cout << "startNode" << std::endl;
 			node.setFillColor(sf::Color::Green);
+			gCost = 0;
 		}
 
 		if (nodeType == END_NODE) {
@@ -108,16 +113,17 @@ public:
 
 
 	bool isMouseOn();
-	
 	void putObstacles();
 	void eraseObstacles();
+
+	void setDefaulValues();
 
 	
 	void draw();
 
 	void draw2();
 
-	void draw3();
+	
 
 
 	

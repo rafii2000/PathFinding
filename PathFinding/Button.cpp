@@ -125,6 +125,8 @@ void Button::render(sf::RenderWindow* window)
 	window->draw(this->text);
 }
 
+
+//BUTTONS FUNCTION
 void Button::onStartButtonClick()
 {
 	CLICKED_BTN = START_BTN;
@@ -145,7 +147,7 @@ void Button::onResetButtonClick()
 
 
 
-//BUTTONS FUNCTION
+
 
 
 
