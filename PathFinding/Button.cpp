@@ -52,19 +52,6 @@ const bool Button::isPressed()
 	return false;
 }
 
-void Button::callButtonFunction()
-{
-	if (buttonID == START_BTN) {
-		onStartButtonClick();
-	}
-	else if (buttonID == STOP_BTN) {
-		onStopButtonClick();
-	}
-	else if (buttonID == RESET_BTN) {
-		onResetButtonClick();
-	}
-}
-
 void Button::update(const sf::Vector2f mousePos)
 {
 	/*Update the booleans for hover and pressed*/
@@ -126,20 +113,47 @@ void Button::render(sf::RenderWindow* window)
 }
 
 
+
+void Button::callButtonFunction()
+{
+	if (buttonID == START_BTN) {
+		onStartButtonClick();
+	}
+	else if (buttonID == BREAK_BTN) {
+		onBreakButtonClick();
+	}
+	else if (buttonID == BOARD_RESET_BTN) {
+		onBoardResetButtonClick();
+	}
+	else if (buttonID == PATH_RESET_BTN) {
+		onPathResetButtonClick();
+	}
+}
+
 //BUTTONS FUNCTION
 void Button::onStartButtonClick()
 {
+	//change CLICKED_BTN flag
 	CLICKED_BTN = START_BTN;
 }
 
-void Button::onStopButtonClick()
+void Button::onBreakButtonClick()
 {
-	CLICKED_BTN = STOP_BTN;
+	//change CLICKED_BTN flag
+	CLICKED_BTN = BREAK_BTN;
+
 }
 
-void Button::onResetButtonClick()
+void Button::onBoardResetButtonClick()
 {
-	CLICKED_BTN = RESET_BTN;
+	//change CLICKED_BTN flag
+	CLICKED_BTN = BOARD_RESET_BTN;
+}
+
+void Button::onPathResetButtonClick()
+{
+	//change CLICKED_BTN flag
+	CLICKED_BTN = PATH_RESET_BTN;
 }
 
 

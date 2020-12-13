@@ -2,6 +2,8 @@
 
 #include "Node.h"
 
+
+
 void Board::createBoard()
 {
 
@@ -72,16 +74,23 @@ void Board::createBoard()
 
 }
 
-void Board::print_nodes()
+void Board::setBoardBordersCords()
 {
+	
+	int firstNodeX = nodesBoard2D[0][0].screenX;
+	int firstNodeY = nodesBoard2D[0][0].screenY;
+	int lastNodeX = nodesBoard2D.back().back().screenX;
+	int lastNodeY = nodesBoard2D.back().back().screenY;
 
-	for (int col = 0; col < nodesColumnAmount; col++) {
+	
+	leftBorder = firstNodeX - nodeOrigin - nodeBorder;
+	topBorder = firstNodeY - nodeOrigin - nodeBorder;
 
-		for (int row = 0; row < nodesRowAmount; row++) {
-			
-			std::cout << nodesBoard2D[col][row].nodeType << std::endl;
-		}
-	}
+	//w przypadku gdy granice sie na siebie nakladaja, nalozona granica wskazuje na kolejny"wezel"
+	//dlatego tu nie moze byc origin+border, poniewaz ten border przy dzieleniu przez (size+borde) wskazuje na kolejny wezel
+	//o wspolrzednych ktorych nie ma w nodesBoard
+	rightBorder = lastNodeX + nodeOrigin;
+	bottomBorder = lastNodeY + nodeOrigin;
 }
 
 void Board::draw()
@@ -90,15 +99,91 @@ void Board::draw()
 	for (int col = 0; col < nodesColumnAmount; col++) {
 
 		for (int row = 0; row < nodesRowAmount; row++) {
-			//nodesBoard2D[col][row].draw();
-			nodesBoard2D[col][row].draw2();
+			
+			nodesBoard2D[col][row].draw();
 		}
 				
 	}
 }
 
 
-// ta funkcja nie tobi tego co ma w nazwie, poniewaz funkcje nie sa wywolywane z jej poziomu, ona tylko zmienia wartosci zmiennej globalnej,
+
+
+Coordinates Board::mouseToBoardIndexes(int mouseX, int mouseY)
+{
+	//function converts mouse possition to node coordinates in nodesBoard2D
+	//wykonuj tylko wtedy gdy mysz jest w Boardzie
+
+	Coordinates nodeCords;
+	nodeCords.x = -1;    //bad value
+	nodeCords.y = -1;    //bad value
+
+	//jak w tym miejscu nic nie zwracac zeby uniknac sprawdzania czy przeslane wspolrzedne sa dobre czy zle???
+	//gdyby cos nie dzialalo to tutaj musze sam w tej funkcji sprawdzac isMouseOnBoard
+	//nie moge polegac na inncyh rzeczach
+	
+	if(isMouseOnBoard == false) return nodeCords; //returns bad coords
+	//if(checkIsMouseOnBoard(mouseX, mouseY) == false) return nodeCords; //returns bad coords, na wrazie W
+
+	//determine node position based on mouse coordinates
+	int row = (mouseX - leftBorder) / (nodeSize + nodeBorder);
+	int col = (mouseY - topBorder) / (nodeSize + nodeBorder);
+
+	nodeCords.x = row;   //good value
+	nodeCords.y = col;   //good value
+
+	return nodeCords; //returns good coords
+
+}
+
+bool Board::checkIsMouseOnBoard(int mouse_x, int mouse_y)
+{
+	//ta funkcja moze nic nie zwracac, tylko przypisac do atrybutu wartosc true lub false
+
+	//check if mouse is outside nodesBoard
+	if (mouse_x <= leftBorder or mouse_x >= rightBorder) return false;
+	if (mouse_y <= topBorder or mouse_y >= bottomBorder) return false;
+
+	return true;
+}
+
+void Board::putObstacles(int mouseX, int mouseY)
+{
+	
+	Coordinates nodeCordsInBoard;
+	nodeCordsInBoard = mouseToBoardIndexes(mouseX, mouseY);
+	int row = nodeCordsInBoard.x;
+	int col = nodeCordsInBoard.y;
+
+	//sprawdzam co zwrocila funkcja mouseToBoardIndexes()
+	if (row == -1 or col == -1) return;
+	
+	//wywoluje moetode obiektu Node 
+	//(kod jest bardziej przejrzysty, nie mam dlugich nazw zmiennych)
+	nodesBoard2D[col][row].putObstacles();
+	
+}
+
+void Board::eraseObstacles(int mouseX, int mouseY)
+{
+	
+	Coordinates nodeCordsInBoard;
+	nodeCordsInBoard = mouseToBoardIndexes(mouseX, mouseY); //przez ta funkcje dodalem tylko parametry
+	int row = nodeCordsInBoard.x;
+	int col = nodeCordsInBoard.y;
+
+	//sprawdzam co zwrocila funkcja mouseToBoardIndexes()
+	if (row == -1 or col == -1) return;
+
+	nodesBoard2D[col][row].eraseObstacles();
+}
+
+
+
+
+
+
+
 void Board::callFunctionOnButtonClick()
 {
 	//after call function, change CLICKED_BTN state
@@ -108,32 +193,33 @@ void Board::callFunctionOnButtonClick()
 		//ta funkcja sie niw wywoluje poniewaz przenioslem logike algorytmu do gory,
 		//a funkcja nodesBoard.callFunctionOnButtonClick() jest ponizej w sekcji RENDER i dlatego to sie nie wykonuje 
 		// no bo CLICKED_BTN jest zmieniony na ""
+		
 		std::cout << "boardState = BLOCK;" << std::endl;
 		boardState = BLOCK;
+		resetAlgorithmAttributes();
 		//tutaj nie ma CLICKED_BTN = ""; bo po tym zdarzeniu program musi wrocic do petli glownej i
 		//z tamtego poziomu wykonywac algorythm, bo inaczej nie bde mogl ladnie tego renderowac
 		
 	}
-	else if (CLICKED_BTN == STOP_BTN) {
+	else if (CLICKED_BTN == BREAK_BTN) {
 
-		//unlock board
 		boardState = ACTIVE;
-
-		//zakomentowane z tego zamoego powodu co wyzej, przy START_BTN
-		/*CLICKED_BTN = "";*/
-
-		//moze warto dodac jeszcze zmienna globalna RUN_ALGHORITHM ktora tu modyfikowac ??
 		
 	}
-	else if (CLICKED_BTN == RESET_BTN) {
-
-
+	else if (CLICKED_BTN == BOARD_RESET_BTN) {
+		
 		//po kliknieciu reset nie moge zrestartowac miejsca wykonywania 
 		//symulacji poniewaz te moje int j, int i sa zadeklarowane w main()
-		if(boardState == ACTIVE)
-			clearBoard();
-		//CLICKED_BTN = "";
-
+		if (boardState == ACTIVE) {
+			clearObstacles();
+			clearPath();
+		}
+			
+	}
+	else if (CLICKED_BTN == PATH_RESET_BTN) {
+		
+		if (boardState == ACTIVE)
+			clearPath();
 	}
 	
 	//to zeruje wartosci, moze po to aby potem sie jakies inne funkcje nie wykonywaly
@@ -150,6 +236,7 @@ void Board::clearObstacles()
 
 			if (nodesBoard2D[col][row].nodeType == OBSTACLE) {
 
+				nodesBoard2D[col][row].nodeState = NONE; //tak dla bezpieczenstwa
 				nodesBoard2D[col][row].nodeType = WALKABLE;
 				nodesBoard2D[col][row].node.setFillColor(sf::Color(170, 170, 170));
 			}
@@ -159,49 +246,77 @@ void Board::clearObstacles()
 
 }
 
+void Board::clearPath()
+{
+	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode
+
+	//Czysci kolory Node'ow, i zmienia ich wartosci? chyba niekonieczne boi robie to na klikniecie start, ale wtedy nie bede mogl rysowac po tym obstacles
+
+	for (int col = 0; col < nodesColumnAmount; col++) {
+		for (int row = 0; row < nodesRowAmount; row++) {
+
+			if (nodesBoard2D[col][row].nodeType == WALKABLE) {
+
+				//set default values on each Node in nodesBoard
+				nodesBoard2D[col][row].setDefaultAttributes();
+			}
+
+		}
+	}
+
+}
+
 void Board::clearBoard()
 {
+
+	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode
+
 	for (int col = 0; col < nodesColumnAmount; col++) {
 		for (int row = 0; row < nodesRowAmount; row++) {
 
 			if (nodesBoard2D[col][row].nodeType != START_NODE and nodesBoard2D[col][row].nodeType != END_NODE) {
 
 				//set default values on each Node in nodesBoard
-				nodesBoard2D[col][row].setDefaulValues();
+				nodesBoard2D[col][row].setDefaultAttributes();
 			}
 
 		}
 	}
 }
 
-bool Board::checkIsMouseOnBoard(int mouse_x, int mouse_y)
+void Board::resetAlgorithmAttributes()
 {
+	//ta funkcja wywoluje sie na klikniecie przycisku START
 
-	int size = nodeSize;
-	int origin = nodeSize / 2;
-	int border = nodeBorder;
+	//this provides that visualization will continue
+	//if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true and RUN_ALGORITHM == false) return;
 
-	////w przypadku gdy granice sie na siebie nakladaja, nalozona granica wskazuje na kolejny"wezel"
-	////dlatego tu nie moze byc origin+border, poniewaz ten border przy dzieleniu przez (size+borde) wskazuje na kolejny wezel
-	////o wspolrzednych ktorych nie ma w nodesBoard
+	IS_PATH_FOUND = false;
+	PATH_NOT_EXIST = false;
+
+	nextMasterNode = nullptr;
+	openNodes.clear();
+	closedNodes.clear();
 	
-	int firstNodeX = nodesBoard2D[0][0].screenX;
-	int firstNodeY = nodesBoard2D[0][0].screenY;
-	int lastNodeX = nodesBoard2D.back().back().screenX;
-	int lastNodeY = nodesBoard2D.back().back().screenY;
 
-	int leftBoardBorder = firstNodeX - origin - border;
-	int topBoardBorder = firstNodeY - origin - border;
-	int rightBoardBorder = lastNodeX + origin;
-	int bottomBoardBorder = lastNodeY + origin;
+	for (int col = 0; col < nodesColumnAmount; col++) {
+		for (int row = 0; row < nodesRowAmount; row++) {
 
-	//check if mouse is outside nodesBoard
-	if (mouse_x <= leftBoardBorder or mouse_x >= rightBoardBorder) return false;
-	if (mouse_y <= topBoardBorder or mouse_y >= bottomBoardBorder) return false;
+			//if (nodesBoard2D[col][row].nodeType != START_NODE and nodesBoard2D[col][row].nodeType != END_NODE and nodesBoard2D[col][row].nodeType != OBSTACLE) {
+			if (nodesBoard2D[col][row].nodeType == WALKABLE){
+				//set default values on each Node in nodesBoard
+				nodesBoard2D[col][row].setDefaultAttributes();
+			}
 
-	//std::cout << "cursor on the nodesBoard" << std::endl;
-	return true;
+		}
+	}
+
+	
+	
+	
 }
+
+
 
 
 
@@ -212,7 +327,11 @@ bool Board::checkIsMouseOnBoard(int mouse_x, int mouse_y)
 
 
 
+//TODO: cos jest do poprawy, nie dziala idealnie
 
+//nie dziala bo moj diagonal przenika przez sciany i w momencie gdy przeniknie to Node za sciana ma mniejszy 
+//fCost ni potem jak normalnie dotrze do niego algorytm przez masterNode ktory ma offset=10 i wtedy nie podmienia rodzicow
+//najprawdopodobniej zakladam taka przyczyne niepoprawnosci algorytmu
 void Board::exploreNodes()
 {
 	/*
@@ -292,10 +411,7 @@ void Board::exploreNodes()
 	}
 
 	
-
-	
 	//odkrywaj ciagle te wezly ktore sa WALKABLE i nie sa CLOSED (umozliwia to aktualizowanie fCost)
-
 
 	//left Node, offset = 10
 	if (isNodeInBoard(x - 1, y) == true and nodesBoard2D[y][x-1].nodeState != CLOSED and nodesBoard2D[y][x-1].nodeType != OBSTACLE) {
@@ -320,9 +436,39 @@ void Board::exploreNodes()
 		
 		setNodeAttributesWhileOpenning(x, y, x, y+1, forwardCost);
 	}
+
+
+	/*
+	//top-left Node
+	if (isNodeInBoard(x - 1, y - 1) == true and nodesBoard2D[y-1][x-1].nodeState != CLOSED and nodesBoard2D[y-1][x-1].nodeType != OBSTACLE) {
+
+		setNodeAttributesWhileOpenning(x, y, x-1, y-1, forwardCost);
+	}
+
+	//top-right Node
+	if (isNodeInBoard(x + 1, y - 1) == true and nodesBoard2D[y - 1][x + 1].nodeState != CLOSED and nodesBoard2D[y - 1][x + 1].nodeType != OBSTACLE) {
+
+		setNodeAttributesWhileOpenning(x, y, x + 1, y - 1, forwardCost);
+	}
+
+	//bottom-left Node
+	if (isNodeInBoard(x - 1, y + 1) == true and nodesBoard2D[y + 1][x - 1].nodeState != CLOSED and nodesBoard2D[y + 1][x - 1].nodeType != OBSTACLE) {
+
+		setNodeAttributesWhileOpenning(x, y, x - 1, y + 1, forwardCost);
+	}
+
+	//bottom-right Node
+	if (isNodeInBoard(x + 1, y + 1) == true and nodesBoard2D[y + 1][x + 1].nodeState != CLOSED and nodesBoard2D[y + 1][x + 1].nodeType != OBSTACLE) {
+
+		setNodeAttributesWhileOpenning(x, y, x + 1, y + 1, forwardCost);
+	}
+	*/
 		
 		
-	//!!!!!nigdy nie mam openNodes.size() == 1, dla openNodes.size() == 0 inicjuje petle!!!!!!
+	//sprawdzanie czy openNodes.size() == 0 musi byc w tym miejscu poniewaz inaczej(gdyby bylo u gory) 
+	//mam nieskonczona petle, poniewaz dla openNodes.size() == 0 inicjuje petle wstawiajac do niej 
+	//jako wartosc poczatkowa starNode a w tym miejscu nie dopuszczam aby wykonala sie instrukcja 
+	// if(openNodes.size() == 0 ) po raz drugi i algorytm konczy sie
 	if (openNodes.size() == 0) {
 
 		PATH_NOT_EXIST = true;
@@ -339,38 +485,31 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 
 	if (nodesBoard2D[selfY][selfX].x == endNodeCords.x and nodesBoard2D[selfY][selfX].y == endNodeCords.y) {
 
-		//koniec algorytmu droga znaleziona
-		//jak openNode jest endNode to wczesnijesze sprawdzenie go tu nie wpusci
+		//koniec algorytmu droga znaleziona (openNode pokryl sie z endNode)
+		
+		// w wezle endNode ustawiam jako rodzica masterNode'a (wtedy funckja showPath() moze byc bezparametrowa);
 		IS_PATH_FOUND = true;
-		showPath(masterX, masterY);
+		nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode = &nodesBoard2D[masterY][masterX];
+		showPath();
 		return;
 	}
 
-	/*std::cout << "Node on board" << std::endl;*/
 	nodesBoard2D[selfY][selfX].gCost = calcGCost(masterX, masterY, selfX, selfY, offset);
 	nodesBoard2D[selfY][selfX].hCost = calcHCost(selfX, selfY);
 	nodesBoard2D[selfY][selfX].fCost = nodesBoard2D[selfY][selfX].gCost + nodesBoard2D[selfY][selfX].hCost;
 	
 	
-	
+	//do otwierania wezlow dopuszczam wszystkie wezly ktore nie sa CLOSED oraz nie sa OBSTACLES, 
+	//zeby nie wykluczyc tego wezla przy liczeniu gCost's oraz ewentualnej podmiany rodzica
+	//Dlatego zanim dodam wezel do <vectora> openNodes, musze sprawdzic jego nodeState, aby nie zdublowac wynikow 
+	if (nodesBoard2D[selfY][selfX].nodeState == NONE) {
 
-	//poniewaz wczesniej nie sprawdzam czy stan jest OPEN zeby nie wykluczyc tego wezla przy liczeniu gCost oraz podmiany rodzica
-	//ale nie moge go ponownie dodawac do listy openNodes
-	if (nodesBoard2D[selfY][selfX].nodeState == OPEN) {
-		//nie dodawaj ponownie do listy openNodes i nie koloruj
-		//nodeState moze miec trzy wartosci NONE / OPEN / ACTIVE
-	}
-	else if(nodesBoard2D[selfY][selfX].nodeState == NONE){
 		nodesBoard2D[selfY][selfX].nodeState = OPEN;
 		nodesBoard2D[selfY][selfX].node.setFillColor(LIGHT_GREEN);
 		openNodes.push_back(&nodesBoard2D[selfY][selfX]);
 	}
-	
-
-	//TODO: sprawdz czy odkryty wezel ma taka sama pozycje jak endNode
 
 	
-
 	std::cout << "gCost = " << nodesBoard2D[selfY][selfX].gCost <<" ";
 	std::cout << "hCost = " << nodesBoard2D[selfY][selfX].hCost << " ";
 	std::cout << "fCost = " << nodesBoard2D[selfY][selfX].fCost << " ";
@@ -382,30 +521,28 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 
 int Board::calcGCost(int masterX, int masterY, int selfX, int selfY, int offset)
 {	
-	//distance form startNode to endNode
+	//gCost - distance form startNode to endNode
 
-	//obliczasz na podstawie gCost Node'a na podstawie ktroego zostala wywolana dla ciebie ta funkcja + dodajesz do niego przesuniecie wzgledem niego(10 lub 14)
+	//gCost dla openNode oblicza sie jako suma: openNode.parentNode.gCost oraz offset
 	//jesli gCost okaze sie mniejszy od aktualnego, to zmien rodzica oraz gCost
+
 
 	int cost = 0;
 
-	//proste wnioskowanie: jesli nie ma rodzica no to nie ma gCostu
-	//wiec wykonujemy inny zestaw instrukcji i nie sprawdzamy czy podmieniac rodzicow
-	
 	cost = nodesBoard2D[masterY][masterX].gCost + offset;
 
-	//jesli nie ma rodzica to ustaw mu rodzica jako MASTER oraz obliczony gCost
+	//1) jesli openNode nie ma rodzica to ustaw rodzica jako masterNode oraz obliczony gCost
 	if (nodesBoard2D[selfY][selfX].parentNode == nullptr) {
 		nodesBoard2D[selfY][selfX].parentNode = &nodesBoard2D[masterY][masterX];
-		//std::cout << "wspolrzedne rodzica:" << nodesBoard2D[selfY][selfX].parentNode->x << " " << nodesBoard2D[selfY][selfX].parentNode->y << std::endl;
 		return cost;
 	}
 
-	//podmiana rodzicow jesli warunek spelniony
+	//2) jesli openNode ma rodzica, to rozwaz czy go podmienic:
+	//podmiana zachodzi tylko wtedy gdy droga do openNode przechodza przez masterNode 
+	//jest mniejsza od drogi prowadzacej do openNode przez openNode.parentNode
 	if (cost < nodesBoard2D[selfY][selfX].gCost) {
 
 		nodesBoard2D[selfY][selfX].parentNode = &nodesBoard2D[masterY][masterX];
-		//std::cout << "wspolrzedne rodzica:" << nodesBoard2D[selfY][selfX].parentNode->x << " " << nodesBoard2D[selfY][selfX].parentNode->y << std::endl;
 		return cost;
 	}
 	
@@ -443,40 +580,27 @@ bool Board::isNodeInBoard(int x, int y)
 	return false;
 }
 
-void Board::showPath(int x, int y)
+void Board::showPath()
 {
+	//STARA WERSJA
+	//w parametrach przekazuje wspolrzedne Rodzica wezla ktory dotarl do endNode 
+	//wracam sie do tylu po rodzicach az dotre do wezla poczatkowego
+	/*Node* currentPathNode = &nodesBoard2D[y][x];
+	Node* tempNode;*/
 
-	// w parametrach przekazuje wspolrzedne Rodzica wezla ktory dotarl do endNode 
-	//wracam sie do tylu po jego rodzicach
 
-	Node* currentPathNode = &nodesBoard2D[y][x];
+	//NOWA WERSJA
+	//funkcja jest bezparametrowa, bo zaczynam wyznaczac droge od endNode'a
+	//poniewaz przypisuje mu jako parentNode wartosc masterNode's ktorego openNode pokryl sie z endNode'em
+	Node* currentPathNode = nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode;
 	Node* tempNode;
-
-
-	for (int i = 0; i < closedNodes.size(); i++) {
-		if (closedNodes[i]->parentNode == NULL) { 
-			std::cout << "NULL" << std::endl; 
-		}
-		else {
-			std::cout << closedNodes[i]->parentNode->x << " " << closedNodes[i]->parentNode->y << std::endl;
-		}
-		
-	}
 	
-	std::cout << "wspolrzedne rodzica ktorego dziecko znalazlo endNode "<< x << " " << y << std::endl;
-	std::cout << "rodzic rodzica " << nodesBoard2D[y][x].parentNode->x << " " << nodesBoard2D[y][x].parentNode->y << std::endl;
-
-
 	while (currentPathNode->nodeType != START_NODE) {
 
 		currentPathNode->node.setFillColor(LIGHT_YELLOW);
 		tempNode = currentPathNode->parentNode;
 		currentPathNode = tempNode;
-
-		//if (currentNode->nodeType == START_NODE) break;
 	}
-
-
 
 }
 

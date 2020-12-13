@@ -6,43 +6,38 @@
 #include "Node.h"
 
 
-struct Cords;
 
-enum board_states { ACTIVE = 0, BLOCK };
+
+enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba lepsze
 
 extern const std::string START_BTN;
-extern const std::string STOP_BTN;
-extern const std::string RESET_BTN;
+extern const std::string BREAK_BTN;
+extern const std::string PATH_RESET_BTN;
+extern const std::string BOARD_RESET_BTN;
 extern std::string CLICKED_BTN;
 
+extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
 
-
+struct Coordinates {
+	int x;
+	int y;
+};
 
 class Board
 {
 
+//friend void putObstacles(Board& board);
+//friend void eraseObstacles(Board& board);
+//friend Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y);
+//friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
 
-friend class Button;
 
-friend void mouseFunction(Board& board, int mouse_x, int mouse_y);
-friend void putObstacles(Board& board);
-friend void eraseObstacles(Board& board);
-friend Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y);
-friend std::string getNodeType(Board& board);
-friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
-
-friend Node* getCurrentNode(Board& board);
 
 
 friend int main(); //to jest mocno niefajne
 
-
-struct Coordinates{
-	int x;
-	int y;
-};
 
 
 
@@ -51,6 +46,7 @@ private:
 	//Node's properties
 	int nodeSize;
 	int nodeBorder;
+	int nodeOrigin;
 	int nodesRowAmount;
 	int nodesColumnAmount;
 
@@ -61,9 +57,20 @@ private:
 
 	
 	//Board
+	int leftBorder;
+	int topBorder;
+	int rightBorder;
+	int bottomBorder;
+
 	short unsigned boardState = ACTIVE;
+	bool isMouseOnBoard = false;
 	sf::RenderWindow* window;
 	std::vector< std::vector<Node> > nodesBoard2D;
+
+
+	//Mouse
+
+
 
 
 	//A* alghoritm
@@ -78,11 +85,7 @@ private:
 	std::vector<Node*> closedNodes;  //closedNodes
 
 
-	//Variables to manage vizualization (start / stop / reset)
-	//One beda zmienione, poniewaz wizualizacje bedzie wygladac w inny sposob
-	//wartosci domyœlne dla zmiennych to: int i = 0, j = 0; int col = -1, row = 1; - wizualizacja sie nie wykonuje
-	int i = 0, j = 0;  // zmiene ktore steruja aktualnym stanem wizualizacji, np: 10% lub 35% lub 90%
-	int col = -1, row = 1; // zmienne ktore inicjalizuja rozpoczecie wizualizacji i mog¹ j¹ te¿ zakoñczyæ
+	
 	
 
 
@@ -94,35 +97,57 @@ public:
 
 	Board(){}
 
-	Board(sf::RenderWindow& w, int nSize, int nBorder,  int nRowAmt, int nColAmt) {
+	Board(sf::RenderWindow& window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
 
-		window = &w;
-		nodeSize = nSize;
-		nodeBorder = nBorder;
-		nodesRowAmount = nRowAmt;
-		nodesColumnAmount = nColAmt;
+		this->window = &window;
+		this->nodeSize = nodeSize;
+		this->nodeOrigin = nodeSize / 2;
+		this->nodeBorder = nodeBorder;
+		this->nodesRowAmount = nodesRowAmt;
+		this->nodesColumnAmount = nodesColAmt;
 
 		createBoard();
+		setBoardBordersCords();
 	}
+
 
 
 	void createBoard();
 
-	//to remove if project will work
-	void print_nodes();
+	void setBoardBordersCords();
 
 	void draw();
 
 	
+
 	//Functionalities
 
+	Coordinates mouseToBoardIndexes(int mouseX, int mouseY);
+
+	bool checkIsMouseOnBoard(int mouse_x, int mouse_y);
+
+	void putObstacles(int mouseX, int mouseY);
+
+	void eraseObstacles(int mouseX, int mouseY);
+
+	
+
+
+
 	void callFunctionOnButtonClick();
+
 	void clearObstacles();
+
+	void clearPath();
+
 	void clearBoard();
 
+	void resetAlgorithmAttributes();
 
-	//using
-	bool checkIsMouseOnBoard(int mouse_x, int mouse_y);
+
+
+
+	
 	
 
 
@@ -139,12 +164,11 @@ public:
 
 	int calcGCost(int masterX, int masterY, int selfX, int selfY, int offset);
 	int calcHCost(int selfX, int selfY);
-	int calcFCost(int x, int y);
-
+	
 
 	bool isNodeInBoard(int x, int y);
 
-	void showPath(int x, int y);
+	void showPath();
 
 	// -------- A* alghoritm -------- //
 	

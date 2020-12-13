@@ -7,9 +7,17 @@ extern std::string mouseState;
 extern bool CLICK_EVENT;
 
 extern const std::string START_BTN;
-extern const std::string STOP_BTN;
-extern const std::string RESET_BTN;
+extern const std::string BREAK_BTN;
+extern const std::string PATH_RESET_BTN;
+extern const std::string BOARD_RESET_BTN;
 extern std::string CLICKED_BTN;
+
+
+//Opis dzialania przyciskow:
+//START - rozpoczyna  wizualizacje, blokuje dostep do tablicy, przywraca domysle atrybuty Node'om ktorych nodeType = WALKABLE
+//BREAK - zatrzymuje wizualizacje, odblokowuje dostep do tablicy
+//PATH_RESET - czysci pola ktore zostaly zaznaczone jako CLOSED i OPEN
+//BOARD_RESET - przywraca atrybuity domyslne wszystkim wez³om, z wyj¹tkiem startNode  i endNode
 
 
 enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_ACTIVE };
@@ -43,16 +51,21 @@ public:
 	const bool isPressed();
 
 	//Functions 
-	void callButtonFunction();
 	void update(const sf::Vector2f mousePos);
 	void render(sf::RenderWindow* window);
 
 
+	void callButtonFunction();
+
 	void onStartButtonClick();
 
-	void onStopButtonClick();
+	void onBreakButtonClick();
 
-	void onResetButtonClick();
+	void onPathResetButtonClick();
+
+	void onBoardResetButtonClick();
+
+	
 
 	
 };
