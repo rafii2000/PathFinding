@@ -24,16 +24,8 @@ class Node: sf::RectangleShape
 
 
 friend class Board;
-
-//friend void putObstacles(Board& board);
-//friend void eraseObstacles(Board& board);
-//friend Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y);
-//friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
-
-
-
-
-friend int main(); //to jest mocno niefajne
+friend int main(); 
+// w sumie to wszystkie operacuje na Node'ach robie przez klase Board wiec ten frien main() chyba nie potrzebny
 
 
 
@@ -48,7 +40,7 @@ private:
 	int hCost; //distance from ending node
 	int fCost; //sum gCost + hCost
 	short unsigned nodeState = NONE;
-	Node* parentNode = nullptr; // moze nie bedzie potrzebne ??
+	Node* parentNode = nullptr; // 
 	std::string nodeType; // W-walkable | O-obstacle | S-starNode | E-endNode
 
 
@@ -61,6 +53,11 @@ private:
 	std::string color;
 	sf::RenderWindow *window;
 	RectangleShape node;
+
+	//Node's colors flags
+	sf::Color OBSTACLE_COLOR = sf::Color(70, 70, 70);
+	sf::Color WALKABLE_COLOR = sf::Color(170, 170, 170);
+	
 
 
 
@@ -106,12 +103,16 @@ public:
 
 
 
-	bool isMouseOn();
+	bool isMouseOn(int mouse_x, int mouse_y);
 	void putObstacles();
 	void eraseObstacles();
 
 
 	void setDefaultAttributes();
+
+	void makeWalkable();
+
+	
 	
 	
 	void draw();

@@ -2,25 +2,12 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
-
-
 #include "Node.h"
 #include "Board.h"
 #include "Button.h"
 
 
 
-struct  Cords
-{
-    int x;
-    int y;
-};
-
-
-
-
-
-Node *mouseOnNode = nullptr;
 
 //mouse state flags
 const std::string PRESSED = "pressed";
@@ -28,11 +15,12 @@ const std::string LEFT_PRESSED = "left";
 const std::string RIGHT_PRESSED = "right";
 const std::string RELEASED = "released";
 
+
 //mouse properties
 int mouseX; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
 int mouseY; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
-//bool isMouseOnBoard = false; do usuniecia
 std::string mouseState = RELEASED;
+
 
 //buttons state flags
 bool CLICK_EVENT = false;
@@ -43,10 +31,14 @@ const std::string BOARD_RESET_BTN = "board_reset_btn";
 std::string CLICKED_BTN = "";
 
 
+//drag mode flags
+bool DRAG_MODE = false;
+bool START_NODE_DRAG_MODE = false;
+bool END_NODE_DRAG_MODE = false;
 
 
 //A*
-bool RUN_ALGORITHM = false; //chanhe to ALGORITHM_STATE: RUNNING | STOPPED | FINISHED
+bool RUN_ALGORITHM = false; //change to ALGORITHM_STATE: RUNNING | STOPPED | FINISHED
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
 bool ALLOW_DIAGONAL = false;
@@ -77,7 +69,7 @@ int main()
     // Create a most important part of program - board of nodes
     Board nodesBoard(window, 30, 1, 58, 27);
         
-    // Create buttons to display
+    // Create buttons
     Button startButton(1100, 35, 130, 50, &font, "Start",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
@@ -90,6 +82,7 @@ int main()
         sf::Color(120, 120, 120), BREAK_BTN
     );
 
+    
     Button pathResetButton(1500, 35, 130, 50, &font, "Path Reset",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
@@ -192,27 +185,164 @@ int main()
 
 
 
-        // ------------ BOARD LOGIC FUNCTION ------------ //
+        // ------------ BOARD FUNCTIONALITIES ------------ //
 
         if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {
 
-            if (mouseState == LEFT_PRESSED) {
+            //ISTNIEJE BLAD START_NODE I END_NODE MOGA NALOZYC SIE NA SIEBIE I WTEDY POJAWIA SIE PROBLEM !!!!!!!!!
+            //po najechaniu na end node i nastepnie po kliknieciu w end node i przejechaniu przez start node cos sie buguje
+           
+            //drag mode cases
+            if (mouseState == LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
 
+               /* std::cout << "koloruj na zielono" << std::endl;*/
+                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x; //dwa razy wywoluje ta sama funckje
+                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y; //dwa razy wywoluje ta sama funckje
+
+
+                //forbid dragging starNode on obstaclesand endNode
+                if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
+
+                    //tu musze sprawdzic czy nie podmieniam samego siebie 
+
+                    if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
+                        nodesBoard.previousDrgged = nodesBoard.currentDrgged;
+                        nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
+
+                        //swap walkable Node's  with starNode 
+                        nodesBoard.startNodeCords.x = currentNodeX;
+                        nodesBoard.startNodeCords.y = currentNodeY;
+                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = START_NODE;
+
+                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Green);
+                    }                  
+                    
+                }
+                    
+            }
+            else if (mouseState == LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
+
+                /*std::cout << "koloruj na czerwono" << std::endl;*/
+                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
+                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
+
+                //forbid dragging endNode on obstacles and startNode
+                if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
+
+                    if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
+                        nodesBoard.previousDrgged = nodesBoard.currentDrgged;
+                        nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
+
+                        //swap walkable Node's  with endNode                        
+                        nodesBoard.endNodeCords.x = currentNodeX;
+                        nodesBoard.endNodeCords.y = currentNodeY;
+
+                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = END_NODE;
+
+                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Red);
+                    }
+
+                }
+                    
+            }
+
+
+            //clear doubled startNode
+            if (START_NODE_DRAG_MODE == true) {
+
+                if (nodesBoard.previousDrgged != nullptr) {
+                    nodesBoard.previousDrgged->makeWalkable();
+                }
+                                                                
+            }
+            //clear doubled endNode
+            else if (END_NODE_DRAG_MODE == true) {
+
+                if (nodesBoard.previousDrgged != nullptr) {
+                    nodesBoard.previousDrgged->makeWalkable();
+                }
+                                    
+            }
+
+
+
+
+
+            if (mouseState == LEFT_PRESSED and DRAG_MODE == false) {
+                
                 nodesBoard.putObstacles(mouseX, mouseY);
             }
 
-            if (mouseState == RIGHT_PRESSED) {
-
+            if (mouseState == RIGHT_PRESSED and DRAG_MODE == false ) {
+                
                 nodesBoard.eraseObstacles(mouseX, mouseY);
             }
 
+
+
+
             if (mouseState == RELEASED) {
-                //TODO: add drag to startNode and endNode
+                
+                //Manage draging mode
+                sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);
+                sf::Color END_NODE_HOVER = sf::Color(220, 0, 0);
+
+                //START_NODE_DRAG_MODE
+                int startNodeX = nodesBoard.startNodeCords.x;
+                int startNodeY = nodesBoard.startNodeCords.y;
+
+                //END_NODE_DRAG_MODE
+                int endNodeX = nodesBoard.endNodeCords.x;
+                int endNodeY = nodesBoard.endNodeCords.y;
+
+
+                //tutaj to wszystko pod jednym ifem nie nie zadzaial, DRAG_MODE mode musze rozbic na dwa 
+                if (nodesBoard.nodesBoard2D[startNodeY][startNodeX].isMouseOn(mouseX, mouseY) == true) {
+                   
+                    START_NODE_DRAG_MODE = true;
+                   
+                    nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[startNodeY][startNodeX];
+                    nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(START_NODE_HOVER);
+                }
+                else {
+
+                    START_NODE_DRAG_MODE = false;                                     
+                    nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(sf::Color::Green);
+                }
+                
+
+                //else tego ifa czysci mi currentNode dla startNode
+                if (nodesBoard.nodesBoard2D[endNodeY][endNodeX].isMouseOn(mouseX, mouseY) == true) {
+
+                    END_NODE_DRAG_MODE = true;
+                  
+                    nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[endNodeY][endNodeX];
+                    nodesBoard.nodesBoard2D[endNodeY][endNodeX].node.setFillColor(END_NODE_HOVER);
+                }
+                else {                                       
+                    END_NODE_DRAG_MODE = false;                     
+                    nodesBoard.nodesBoard2D[endNodeY][endNodeX].node.setFillColor(sf::Color::Red);
+                }
+
+                //konieczny if, bez niego nie moge ustalac prawidlowych wartosci zmiennych
+                //zapobiega usuwaniu przez if'a dla endNode to co bylo ustawione w if'e startNode
+                if (START_NODE_DRAG_MODE == true or END_NODE_DRAG_MODE == true) {
+                    
+                    DRAG_MODE = true;
+                }
+                else {
+
+                    DRAG_MODE = false;
+                    nodesBoard.previousDrgged = nullptr;
+                    nodesBoard.currentDrgged = nullptr;
+                }
+                            
+                    
             }
 
         }
 
-        // ------------ BOARD LOGIC FUNCTION ------------ //
+        // ------------ BOARD FUNCTIONALITIES ------------ //
 
 
 
@@ -246,6 +376,9 @@ int main()
         }
 
 
+        //tego nie moge usunac z main() poniewaz  exploreNodes() nodes musi wykonac x iteracji
+        // a jak wykonalbym to w funkcji przycisku, no to byla by tylko jedna iteracja, chyba ze 
+        //nie zmienilbym flagi przycisku i bylby ciagle wlaczony, ale to chyba nie ma sensu???
         if (RUN_ALGORITHM == true) {
 
            //vizualization delay

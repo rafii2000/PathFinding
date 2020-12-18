@@ -360,22 +360,10 @@ void Board::exploreNodes()
 		//z listy wybierz wezel o najmniejszym koszcie i go zbadaj(stan CLOSED)
 		//x = przypisz wspolrzedna X wybranego Node'a
 		//y = przypisz wspolrzedna Y wybranego Node'a
-		//dodaj do do listy wezlow zbadanych (CLOSED)
-
-
-		//TODO: podczas dodawania wezlow do openNodes na bierzaco tworz zestawienie  jaki kolejny wezel bedzie MASTEREM
-
+		//dodaj do do listy wezlow zbadanych (CLOSED)		
 
 		//nie moge zrobic ustalanie nextMasterNode w clacGCost poniewaz tam tylko rozpatruje w danum momencie tylko 3 Node'y a nie wszystkie mozliwe
-		
-		//byc moze tu bdzie jeszcze potrzebny warunek ktory sprawdza czy droga zostala odnaleziona 
-		
-
-		//std::cout << "openNodes.size() = " << openNodes.size() << std::endl;
-		
-		
-
-		
+		//byc moze tu bdzie jeszcze potrzebny warunek ktory sprawdza czy droga zostala odnaleziona 		
 			
 
 		nextMasterNode = openNodes[0];
@@ -383,7 +371,6 @@ void Board::exploreNodes()
 		for (int i = 0; i < openNodes.size(); i++) {
 
 			//Find minimum fCost from all openNodes
-			//TODO: improve this condition, I this sth is wrong here
 			//najpierw porownaj fCost jesli takie same sprawdz hCost
 			if (openNodes[i]->fCost < nextMasterNode->fCost){
 				nextMasterNode = openNodes[i];
@@ -395,8 +382,6 @@ void Board::exploreNodes()
 			}
 		}
 
-
-		std::cout << "usun z openNodes" << std::endl;
 		x = nextMasterNode->x;
 		y = nextMasterNode->y;
 
@@ -404,9 +389,7 @@ void Board::exploreNodes()
 		closedNodes.push_back(&nodesBoard2D[y][x]);
 		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);
 
-		
-		openNodes.erase(openNodes.begin() + index);	
-		std::cout << "openNodes.size(): " << openNodes.size() << std::endl;
+		openNodes.erase(openNodes.begin() + index);			
 
 	}
 
@@ -466,17 +449,13 @@ void Board::exploreNodes()
 		
 		
 	//sprawdzanie czy openNodes.size() == 0 musi byc w tym miejscu poniewaz inaczej(gdyby bylo u gory) 
-	//mam nieskonczona petle, poniewaz dla openNodes.size() == 0 inicjuje petle wstawiajac do niej 
-	//jako wartosc poczatkowa starNode a w tym miejscu nie dopuszczam aby wykonala sie instrukcja 
-	// if(openNodes.size() == 0 ) po raz drugi i algorytm konczy sie
+	//petla wykonuje sie w nieskonczonosc, poniewaz dla openNodes.size() == 0 inicjuje petle wstawiajac do niej 
 	if (openNodes.size() == 0) {
 
 		PATH_NOT_EXIST = true;
 		return;
 	}
-
-	
-	
+		
 
 }
 
@@ -486,7 +465,6 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 	if (nodesBoard2D[selfY][selfX].x == endNodeCords.x and nodesBoard2D[selfY][selfX].y == endNodeCords.y) {
 
 		//koniec algorytmu droga znaleziona (openNode pokryl sie z endNode)
-		
 		// w wezle endNode ustawiam jako rodzica masterNode'a (wtedy funckja showPath() moze byc bezparametrowa);
 		IS_PATH_FOUND = true;
 		nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode = &nodesBoard2D[masterY][masterX];
@@ -508,14 +486,6 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 		nodesBoard2D[selfY][selfX].node.setFillColor(LIGHT_GREEN);
 		openNodes.push_back(&nodesBoard2D[selfY][selfX]);
 	}
-
-	
-	std::cout << "gCost = " << nodesBoard2D[selfY][selfX].gCost <<" ";
-	std::cout << "hCost = " << nodesBoard2D[selfY][selfX].hCost << " ";
-	std::cout << "fCost = " << nodesBoard2D[selfY][selfX].fCost << " ";
-	std::cout << std::endl;
-
-
 	
 }
 

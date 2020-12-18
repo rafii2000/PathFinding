@@ -28,15 +28,8 @@ struct Coordinates {
 class Board
 {
 
-//friend void putObstacles(Board& board);
-//friend void eraseObstacles(Board& board);
-//friend Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y);
-//friend bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y);
 
-
-
-
-friend int main(); //to jest mocno niefajne
+friend int main(); //zeby to ususnac to isMouseOnBoard i boardState musza byc public
 
 
 
@@ -54,6 +47,8 @@ private:
 	sf::Color LIGHT_GREEN = sf::Color(128, 255, 0, 200);
 	sf::Color LIGHT_YELLOW = sf::Color(255, 255, 0, 200);
 	sf::Color LIGHT_CYAN = sf::Color(138, 249, 255, 200);
+	sf::Color START_NODE_HOVER = sf::Color(0, 235, 0);
+	sf::Color END_NODE_HOVER = sf::Color(225, 0, 0);
 
 	
 	//Board
@@ -68,7 +63,13 @@ private:
 	std::vector< std::vector<Node> > nodesBoard2D;
 
 
-	//Mouse
+	//Dragging
+	Node* previousDrgged = nullptr;
+	Node* currentDrgged = nullptr;
+
+
+
+	
 
 
 

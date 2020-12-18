@@ -4,11 +4,15 @@
 //unused functions because logic has been changed, 
 //now any nodesBoard changes are triggered on mouse events, 
 //not trggier by Node while rendering in loop
-bool Node::isMouseOn()
+bool Node::isMouseOn(int mouse_x, int mouse_y)
 {
+	//to chyba nie jest dobra praktyka zeby funkcja ustaala pozycje myszki poza petla pollEvent
+	//wiec musze dodac do tej funkcji parametry
+	/*int mouseX = sf::Mouse::getPosition(*window).x;
+	int mouseY = sf::Mouse::getPosition(*window).y;*/
+	int mouseX = mouse_x;
+	int mouseY = mouse_y;
 
-	int mouseX = sf::Mouse::getPosition(*window).x;
-	int mouseY = sf::Mouse::getPosition(*window).y;
 
 	float nodeRange = origin + nodeBorder/2;
 
@@ -60,6 +64,12 @@ void Node::setDefaultAttributes()
 	fCost = 0;
 	parentNode = nullptr;
 
+}
+
+void Node::makeWalkable()
+{
+	nodeType = WALKABLE;
+	node.setFillColor(WALKABLE_COLOR);
 }
 
 
