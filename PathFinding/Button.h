@@ -16,7 +16,7 @@ extern std::string CLICKED_BTN;
 //Opis dzialania przyciskow:
 //START - rozpoczyna  wizualizacje, blokuje dostep do tablicy, przywraca domysle atrybuty Node'om ktorych nodeType = WALKABLE
 //BREAK - zatrzymuje wizualizacje, odblokowuje dostep do tablicy
-//PATH_RESET - czysci pola ktore zostaly zaznaczone jako CLOSED i OPEN
+//PATH_RESET - przywraca atrybuity domyslne wszystkim, ktore zostaly zaznaczone jako CLOSED i OPEN
 //BOARD_RESET - przywraca atrybuity domyslne wszystkim wez³om, z wyj¹tkiem startNode  i endNode
 
 

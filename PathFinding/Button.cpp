@@ -1,7 +1,7 @@
 #include "Button.h"
 
 
-
+//constructor
 Button::Button(int x, int y, int width, int height, 
 	sf::Font *font, std::string text, 
 	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
@@ -34,6 +34,8 @@ Button::Button(int x, int y, int width, int height,
 
 }
 
+
+//destructor
 Button::~Button()
 {
 }
@@ -67,15 +69,13 @@ void Button::update(const sf::Vector2f mousePos)
 		//Pressed
 		if (mouseState == "left") {
 
-			std::cout << "pressing" << std::endl;
-
 			this->buttonState = BTN_ACTIVE;
 
 		}
 		//Click,
 		else if (CLICK_EVENT == true) {
 	
-			std::cout << "CLICK" << std::endl;
+			std::cout << "CLICK_EVENT" << std::endl;
 			CLICK_EVENT = false;
 			callButtonFunction();
 		}
@@ -116,6 +116,8 @@ void Button::render(sf::RenderWindow* window)
 
 void Button::callButtonFunction()
 {
+	//change the current clicked button flag
+
 	if (buttonID == START_BTN) {
 		onStartButtonClick();
 	}

@@ -16,9 +16,12 @@ extern const std::string PATH_RESET_BTN;
 extern const std::string BOARD_RESET_BTN;
 extern std::string CLICKED_BTN;
 
+
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
+
+
 
 struct Coordinates {
 	int x;
@@ -43,6 +46,7 @@ private:
 	int nodesRowAmount;
 	int nodesColumnAmount;
 
+
 	//Node's colors flags
 	sf::Color LIGHT_GREEN = sf::Color(128, 255, 0, 200);
 	sf::Color LIGHT_YELLOW = sf::Color(255, 255, 0, 200);
@@ -63,15 +67,9 @@ private:
 	std::vector< std::vector<Node> > nodesBoard2D;
 
 
-	//Dragging
+	//Dragging mode
 	Node* previousDrgged = nullptr;
 	Node* currentDrgged = nullptr;
-
-
-
-	
-
-
 
 
 	//A* alghoritm
@@ -84,11 +82,6 @@ private:
 
 	std::vector<Node*> openNodes;  //openNodes
 	std::vector<Node*> closedNodes;  //closedNodes
-
-
-	
-	
-
 
 
 
@@ -132,9 +125,6 @@ public:
 	void eraseObstacles(int mouseX, int mouseY);
 
 	
-
-
-
 	void callFunctionOnButtonClick();
 
 	void clearObstacles();
@@ -147,16 +137,6 @@ public:
 
 
 
-
-	
-	
-
-
-
-
-
-
-
 	// -------- A* alghoritm -------- //
 
 	void exploreNodes();
@@ -164,12 +144,12 @@ public:
 	void setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, int selfY, int offset);
 
 	int calcGCost(int masterX, int masterY, int selfX, int selfY, int offset);
-	int calcHCost(int selfX, int selfY);
 	
-
-	bool isNodeInBoard(int x, int y);
+	int calcHCost(int selfX, int selfY);	
 
 	void showPath();
+
+	bool isNodeInBoard(int x, int y);
 
 	// -------- A* alghoritm -------- //
 	

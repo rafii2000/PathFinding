@@ -138,8 +138,6 @@ Coordinates Board::mouseToBoardIndexes(int mouseX, int mouseY)
 
 bool Board::checkIsMouseOnBoard(int mouse_x, int mouse_y)
 {
-	//ta funkcja moze nic nie zwracac, tylko przypisac do atrybutu wartosc true lub false
-
 	//check if mouse is outside nodesBoard
 	if (mouse_x <= leftBorder or mouse_x >= rightBorder) return false;
 	if (mouse_y <= topBorder or mouse_y >= bottomBorder) return false;
@@ -186,34 +184,28 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 
 void Board::callFunctionOnButtonClick()
 {
-	//after call function, change CLICKED_BTN state
+
 	if (CLICKED_BTN == START_BTN) {
 
-		//block board
-		//ta funkcja sie niw wywoluje poniewaz przenioslem logike algorytmu do gory,
-		//a funkcja nodesBoard.callFunctionOnButtonClick() jest ponizej w sekcji RENDER i dlatego to sie nie wykonuje 
-		// no bo CLICKED_BTN jest zmieniony na ""
-		
+		//block board, because the visualization is runnig
+		std::cout << "START_BTN" << std::endl;
 		std::cout << "boardState = BLOCK;" << std::endl;
+		RUN_ALGORITHM = true;
 		boardState = BLOCK;
 		resetAlgorithmAttributes();
-		//tutaj nie ma CLICKED_BTN = ""; bo po tym zdarzeniu program musi wrocic do petli glownej i
-		//z tamtego poziomu wykonywac algorythm, bo inaczej nie bde mogl ladnie tego renderowac
-		
+				
 	}
 	else if (CLICKED_BTN == BREAK_BTN) {
 
+		RUN_ALGORITHM = false;
 		boardState = ACTIVE;
 		
 	}
 	else if (CLICKED_BTN == BOARD_RESET_BTN) {
 		
-		//po kliknieciu reset nie moge zrestartowac miejsca wykonywania 
-		//symulacji poniewaz te moje int j, int i sa zadeklarowane w main()
-		if (boardState == ACTIVE) {
-			clearObstacles();
-			clearPath();
-		}
+		if (boardState == ACTIVE) 
+			clearBoard();
+		
 			
 	}
 	else if (CLICKED_BTN == PATH_RESET_BTN) {
@@ -221,12 +213,12 @@ void Board::callFunctionOnButtonClick()
 		if (boardState == ACTIVE)
 			clearPath();
 	}
-	
-	//to zeruje wartosci, moze po to aby potem sie jakies inne funkcje nie wykonywaly
-	//po wykonaniu funkcji ta wartosc musi zostac wyzerowana start wizualizacji to nie moze byc w tym miejsu, bo
-	//wizualizacja musi byc wykonywana w petli glownej, bo inaczej nie bede mogl ladnie rysowac na Boardzie;
-	/*CLICKED_BTN = "";*/
-	
+
+	//after each click on the button CLICKED_BTN flag has to be cleared, beacause 
+	//each function assign to button can be call only once, otherwise CLICKED_BTN 
+	//would have assign previous value, until next button would be clicked
+	CLICKED_BTN = "";
+
 }
 
 void Board::clearObstacles()
@@ -248,11 +240,9 @@ void Board::clearObstacles()
 
 void Board::clearPath()
 {
-	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode
-
-	//Czysci kolory Node'ow, i zmienia ich wartosci? chyba niekonieczne boi robie to na klikniecie start, ale wtedy nie bede mogl rysowac po tym obstacles
-
+	//Czysci kolory Node'ow, i resetuje ich wartosci 
 	for (int col = 0; col < nodesColumnAmount; col++) {
+
 		for (int row = 0; row < nodesRowAmount; row++) {
 
 			if (nodesBoard2D[col][row].nodeType == WALKABLE) {
@@ -260,7 +250,6 @@ void Board::clearPath()
 				//set default values on each Node in nodesBoard
 				nodesBoard2D[col][row].setDefaultAttributes();
 			}
-
 		}
 	}
 
@@ -269,8 +258,8 @@ void Board::clearPath()
 void Board::clearBoard()
 {
 
-	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode
-
+	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode, robie to na klikniecie start
+	//wiec tak jakby tym miejscu jest to nie konieczne
 	for (int col = 0; col < nodesColumnAmount; col++) {
 		for (int row = 0; row < nodesRowAmount; row++) {
 
@@ -287,9 +276,7 @@ void Board::clearBoard()
 void Board::resetAlgorithmAttributes()
 {
 	//ta funkcja wywoluje sie na klikniecie przycisku START
-
-	//this provides that visualization will continue
-	//if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true and RUN_ALGORITHM == false) return;
+	//resetuje wszystko poza obstacles, startNode, endNode
 
 	IS_PATH_FOUND = false;
 	PATH_NOT_EXIST = false;
@@ -298,22 +285,16 @@ void Board::resetAlgorithmAttributes()
 	openNodes.clear();
 	closedNodes.clear();
 	
-
 	for (int col = 0; col < nodesColumnAmount; col++) {
+
 		for (int row = 0; row < nodesRowAmount; row++) {
 
-			//if (nodesBoard2D[col][row].nodeType != START_NODE and nodesBoard2D[col][row].nodeType != END_NODE and nodesBoard2D[col][row].nodeType != OBSTACLE) {
 			if (nodesBoard2D[col][row].nodeType == WALKABLE){
-				//set default values on each Node in nodesBoard
+				//set default values on each Node in nodesBoard, which nodeType = WALKABLE
 				nodesBoard2D[col][row].setDefaultAttributes();
 			}
-
 		}
-	}
-
-	
-	
-	
+	}	
 }
 
 
@@ -325,13 +306,8 @@ void Board::resetAlgorithmAttributes()
 
 // -------- A* ALGORITHM LOGIC -------- //
 
+//TODO: nie dziala szukanie dorgi z uwzglednieniem przekatnych
 
-
-//TODO: cos jest do poprawy, nie dziala idealnie
-
-//nie dziala bo moj diagonal przenika przez sciany i w momencie gdy przeniknie to Node za sciana ma mniejszy 
-//fCost ni potem jak normalnie dotrze do niego algorytm przez masterNode ktory ma offset=10 i wtedy nie podmienia rodzicow
-//najprawdopodobniej zakladam taka przyczyne niepoprawnosci algorytmu
 void Board::exploreNodes()
 {
 	/*
@@ -344,33 +320,29 @@ void Board::exploreNodes()
 	int x = 0;  //wspolrzedne aktualnie zamknietego wezla (masterX)
 	int y = 0; //wspolrzedne aktualnie zamknietego wezla (masterY)
 
-	//At the beggining discover nodes around the startNode
 	
 	/*moge to isntrukcje dodac poza ta funkcja i wszytko powinno smigac*/
 	if (openNodes.size() == 0) {
 		//jako wezel poczatkowy uwstaw startNode
-		//dodaj do do listy wezlow zbadanych (CLOSED)
+		//dodaj go do listy wezlow zbadanych (CLOSED)
 		x = startNodeCords.x;
 		y = startNodeCords.y;		
 
-		nodesBoard2D[y][x].nodeState = CLOSED;
+		nodesBoard2D[y][x].nodeState = CLOSED;		// set  startNode's nodeState to CLOSED
 		closedNodes.push_back(&nodesBoard2D[y][x]); // add startNode to closedNodes vector
 	}
 	else {
-		//z listy wybierz wezel o najmniejszym koszcie i go zbadaj(stan CLOSED)
+		//z listy openNodes wybierz wezel o najmniejszym koszcie i go zbadaj
 		//x = przypisz wspolrzedna X wybranego Node'a
 		//y = przypisz wspolrzedna Y wybranego Node'a
-		//dodaj do do listy wezlow zbadanych (CLOSED)		
-
-		//nie moge zrobic ustalanie nextMasterNode w clacGCost poniewaz tam tylko rozpatruje w danum momencie tylko 3 Node'y a nie wszystkie mozliwe
-		//byc moze tu bdzie jeszcze potrzebny warunek ktory sprawdza czy droga zostala odnaleziona 		
+		
+		//dodaj do do listy wezlow zbadanych (CLOSED)	
 			
 
-		nextMasterNode = openNodes[0];
-		int index = 0;  // przechowuje index najmnijeszego elementu z vectora openNodes
+		nextMasterNode = openNodes[0];	// inicjuje pierwsza zmienna do algorytmu szukania minimum
+		int index = 0;					// przechowuje index najmnijeszego elementu z vectora openNodes
 		for (int i = 0; i < openNodes.size(); i++) {
 
-			//Find minimum fCost from all openNodes
 			//najpierw porownaj fCost jesli takie same sprawdz hCost
 			if (openNodes[i]->fCost < nextMasterNode->fCost){
 				nextMasterNode = openNodes[i];
@@ -382,14 +354,13 @@ void Board::exploreNodes()
 			}
 		}
 
-		x = nextMasterNode->x;
-		y = nextMasterNode->y;
+		x = nextMasterNode->x;	//przypisuje wspolrzedna X wybranego wezla (krotsza nazwa zmiennej)
+		y = nextMasterNode->y;	//przypisuje wspolrzedna Y wybranego wezla (krotsza nazwa zmiennej)
 
-		nodesBoard2D[y][x].nodeState = CLOSED;
-		closedNodes.push_back(&nodesBoard2D[y][x]);
-		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);
-
-		openNodes.erase(openNodes.begin() + index);			
+		nodesBoard2D[y][x].nodeState = CLOSED;				//zmien stan wezla na CLOSED
+		closedNodes.push_back(&nodesBoard2D[y][x]);			//dodaj wezel do listy wezlow zbadanych(CLOSED)
+		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);	//zmien kolor wezla na kolor wezla o stanie CLOSED
+		openNodes.erase(openNodes.begin() + index);			//usun wezel z listy openNodes
 
 	}
 
@@ -402,19 +373,19 @@ void Board::exploreNodes()
 		setNodeAttributesWhileOpenning(x, y, x-1, y, forwardCost);
 	}
 
-	//right Node
+	//right Node, offset = 10
 	if (isNodeInBoard(x + 1, y) == true and nodesBoard2D[y][x+1].nodeState != CLOSED and nodesBoard2D[y][x+1].nodeType != OBSTACLE) {
 
 		setNodeAttributesWhileOpenning(x, y, x+1, y, forwardCost);
 	}
 
-	//top Node
+	//top Node, offset = 10
 	if (isNodeInBoard(x, y - 1) == true and nodesBoard2D[y-1][x].nodeState != CLOSED and nodesBoard2D[y-1][x].nodeType != OBSTACLE) {
 
 		setNodeAttributesWhileOpenning(x, y, x, y-1, forwardCost);
 	}
 
-	//bottom Node
+	//bottom Node, offset = 10
 	if (isNodeInBoard(x, y + 1) == true and nodesBoard2D[y+1][x].nodeState != CLOSED and nodesBoard2D[y+1][x].nodeType != OBSTACLE) {
 		
 		setNodeAttributesWhileOpenning(x, y, x, y+1, forwardCost);
@@ -448,8 +419,9 @@ void Board::exploreNodes()
 	*/
 		
 		
-	//sprawdzanie czy openNodes.size() == 0 musi byc w tym miejscu poniewaz inaczej(gdyby bylo u gory) 
-	//petla wykonuje sie w nieskonczonosc, poniewaz dla openNodes.size() == 0 inicjuje petle wstawiajac do niej 
+	//Sprawdzanie czy openNodes.size() == 0 musi byc w tym miejscu poniewaz inaczej(gdyby bylo u gory) 
+	//petla wykonuje sie w nieskonczonosc, poniewaz dla openNodes.size() == 0 inicjuje petle.
+	//Jesli podczas odkrywania wezlow zaden nowy nie zostal dodany do openNodes i openNodes jest zero, algorytm sie konczy
 	if (openNodes.size() == 0) {
 
 		PATH_NOT_EXIST = true;
@@ -464,7 +436,8 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 
 	if (nodesBoard2D[selfY][selfX].x == endNodeCords.x and nodesBoard2D[selfY][selfX].y == endNodeCords.y) {
 
-		//koniec algorytmu droga znaleziona (openNode pokryl sie z endNode)
+		// funkcja odkrywa kolejne wezly, ktore jeszcze nie zostaly odkryte w tej turze (brak warunku if IS_PATH_FOUND == true)
+		// koniec algorytmu droga znaleziona (openNode pokryl sie z endNode)
 		// w wezle endNode ustawiam jako rodzica masterNode'a (wtedy funckja showPath() moze byc bezparametrowa);
 		IS_PATH_FOUND = true;
 		nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode = &nodesBoard2D[masterY][masterX];
@@ -492,10 +465,8 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 int Board::calcGCost(int masterX, int masterY, int selfX, int selfY, int offset)
 {	
 	//gCost - distance form startNode to endNode
-
 	//gCost dla openNode oblicza sie jako suma: openNode.parentNode.gCost oraz offset
 	//jesli gCost okaze sie mniejszy od aktualnego, to zmien rodzica oraz gCost
-
 
 	int cost = 0;
 
@@ -552,14 +523,6 @@ bool Board::isNodeInBoard(int x, int y)
 
 void Board::showPath()
 {
-	//STARA WERSJA
-	//w parametrach przekazuje wspolrzedne Rodzica wezla ktory dotarl do endNode 
-	//wracam sie do tylu po rodzicach az dotre do wezla poczatkowego
-	/*Node* currentPathNode = &nodesBoard2D[y][x];
-	Node* tempNode;*/
-
-
-	//NOWA WERSJA
 	//funkcja jest bezparametrowa, bo zaczynam wyznaczac droge od endNode'a
 	//poniewaz przypisuje mu jako parentNode wartosc masterNode's ktorego openNode pokryl sie z endNode'em
 	Node* currentPathNode = nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode;

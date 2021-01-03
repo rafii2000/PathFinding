@@ -8,12 +8,15 @@
 
 
 
-
 //mouse state flags
 const std::string PRESSED = "pressed";
 const std::string LEFT_PRESSED = "left";
 const std::string RIGHT_PRESSED = "right";
 const std::string RELEASED = "released";
+
+enum class mouse_flags { PRESSED = 0, LEFT_PRESSED, RIGHT_PRESSED, RELEASED };
+
+mouse_flags mouseFlag = mouse_flags::RELEASED;
 
 
 //mouse properties
@@ -38,15 +41,10 @@ bool END_NODE_DRAG_MODE = false;
 
 
 //A*
-bool RUN_ALGORITHM = false; //change to ALGORITHM_STATE: RUNNING | STOPPED | FINISHED
+bool RUN_ALGORITHM = false;
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
-bool ALLOW_DIAGONAL = false;
-
-
-
-
-
+//bool ALLOW_DIAGONAL = false;    //TODO: add new functionality
 
 
 int main()
@@ -56,7 +54,7 @@ int main()
 
     // Create the main window    
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height), "SFML PathFinding");
+    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height), "SFML PathFinding");  
     window.setPosition(sf::Vector2i(-8, 0));
     window.setFramerateLimit(140);
 
@@ -96,41 +94,39 @@ int main()
     );
 
     //TODO: Add button allow/disallow diagonal
-   
-    
+
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
     
+
+
 
   
     // Start the game loop
     while (window.isOpen())
     {
+
+        // ------------ EVENT LOOP ------------ //
         // Process events
         sf::Event event;
         while (window.pollEvent(event))
         {
             // Close window: exit
             if (event.type == sf::Event::Closed)
-                window.close();
+                window.close();        
 
             //Mouse events
             CLICK_EVENT = false;
             if (event.type == sf::Event::MouseButtonPressed) {
-
-                //put obstacles
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                    /*std::cout << "LEFT pressed detected" << std::endl;*/
+                
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {                    
                     mouseState = LEFT_PRESSED;
                 }
 
-                //erase obstacles
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-                    /*std::cout << "RIGHT pressed detected" << std::endl;*/
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {                    
                     mouseState = RIGHT_PRESSED;
                 }               
             }
-            else if (event.type == sf::Event::MouseButtonReleased) {
-                /*std::cout << "Released detected" << std::endl; */              
+            else if (event.type == sf::Event::MouseButtonReleased) {                         
                 mouseState = RELEASED;
                 CLICK_EVENT = true;
             }
@@ -141,44 +137,33 @@ int main()
                 //set mouse position
                 mouseX = sf::Mouse::getPosition(window).x;
                 mouseY = sf::Mouse::getPosition(window).y;
-                //std::cout << "X: " <<mouseX << " Y: " << mouseY << std::endl;
-
+                
                 //check is mouse on board 
                 nodesBoard.isMouseOnBoard = nodesBoard.checkIsMouseOnBoard(mouseX, mouseY);
 
             }    
         }
+        // ------------ EVENT LOOP ------------ //
+                                               
 
 
 
 
+        // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
-        // ------ SET MAIN VARIABLES EVERY EACH ITERATION ------ //
-        if (nodesBoard.isMouseOnBoard == true) {
-
-                                  
-        }
-        // ------ SET MAIN VARIABLES EVERY EACH ITERATION ------ //
-        
-
-
-
-
-
-
-        // ------------ BUTTONS LOGIC FUNCTION ------------ //
-
+        //check if any buttons is being clicked or hovered
         if (nodesBoard.isMouseOnBoard == false) {
             sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             startButton.update(mousePos);
             breakButton.update(mousePos);
             pathResetButton.update(mousePos);
-            boardResetButton.update(mousePos);
+            boardResetButton.update(mousePos);            
         }
 
+        //call proper function
         nodesBoard.callFunctionOnButtonClick();
 
-        // ------------ BUTTONS LOGIC FUNCTION ------------ //
+        // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
 
 
@@ -187,24 +172,21 @@ int main()
 
         // ------------ BOARD FUNCTIONALITIES ------------ //
 
-        if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {
+        //przeniesienie tych funkcji do klasy Board, wymagalo by udostepniania pozycji kursora
+        //i innych zmiennych informujacych o stanie programu, warto tak ????
 
-            //ISTNIEJE BLAD START_NODE I END_NODE MOGA NALOZYC SIE NA SIEBIE I WTEDY POJAWIA SIE PROBLEM !!!!!!!!!
-            //po najechaniu na end node i nastepnie po kliknieciu w end node i przejechaniu przez start node cos sie buguje
+        if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {                 
            
-            //drag mode cases
+            //drag selected node (startNode or endNode) 
             if (mouseState == LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
 
-               /* std::cout << "koloruj na zielono" << std::endl;*/
                 int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x; //dwa razy wywoluje ta sama funckje
                 int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y; //dwa razy wywoluje ta sama funckje
 
-
-                //forbid dragging starNode on obstaclesand endNode
+                //forbid dragging starNode on obstacles and endNode
                 if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
 
-                    //tu musze sprawdzic czy nie podmieniam samego siebie 
-
+                    //prevent from clearing the node, which mouse is pointing and is already highlighted
                     if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
                         nodesBoard.previousDrgged = nodesBoard.currentDrgged;
                         nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
@@ -213,7 +195,6 @@ int main()
                         nodesBoard.startNodeCords.x = currentNodeX;
                         nodesBoard.startNodeCords.y = currentNodeY;
                         nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = START_NODE;
-
                         nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Green);
                     }                  
                     
@@ -221,14 +202,14 @@ int main()
                     
             }
             else if (mouseState == LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
-
-                /*std::cout << "koloruj na czerwono" << std::endl;*/
+                
                 int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
                 int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
 
                 //forbid dragging endNode on obstacles and startNode
                 if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
 
+                    //prevent from clearing the node, which mouse is pointing and is already highlighted
                     if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
                         nodesBoard.previousDrgged = nodesBoard.currentDrgged;
                         nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
@@ -236,9 +217,7 @@ int main()
                         //swap walkable Node's  with endNode                        
                         nodesBoard.endNodeCords.x = currentNodeX;
                         nodesBoard.endNodeCords.y = currentNodeY;
-
                         nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = END_NODE;
-
                         nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Red);
                     }
 
@@ -266,8 +245,6 @@ int main()
 
 
 
-
-
             if (mouseState == LEFT_PRESSED and DRAG_MODE == false) {
                 
                 nodesBoard.putObstacles(mouseX, mouseY);
@@ -279,11 +256,10 @@ int main()
             }
 
 
-
-
-            if (mouseState == RELEASED) {
+            //Turn on/off drag mode
+            if (mouseState == RELEASED) {                
                 
-                //Manage draging mode
+                //Node's color flags
                 sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);
                 sf::Color END_NODE_HOVER = sf::Color(220, 0, 0);
 
@@ -295,8 +271,7 @@ int main()
                 int endNodeX = nodesBoard.endNodeCords.x;
                 int endNodeY = nodesBoard.endNodeCords.y;
 
-
-                //tutaj to wszystko pod jednym ifem nie nie zadzaial, DRAG_MODE mode musze rozbic na dwa 
+               //manage start_node_drag_mode
                 if (nodesBoard.nodesBoard2D[startNodeY][startNodeX].isMouseOn(mouseX, mouseY) == true) {
                    
                     START_NODE_DRAG_MODE = true;
@@ -310,8 +285,7 @@ int main()
                     nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(sf::Color::Green);
                 }
                 
-
-                //else tego ifa czysci mi currentNode dla startNode
+                //manage end_node_drag_mode
                 if (nodesBoard.nodesBoard2D[endNodeY][endNodeX].isMouseOn(mouseX, mouseY) == true) {
 
                     END_NODE_DRAG_MODE = true;
@@ -323,6 +297,7 @@ int main()
                     END_NODE_DRAG_MODE = false;                     
                     nodesBoard.nodesBoard2D[endNodeY][endNodeX].node.setFillColor(sf::Color::Red);
                 }
+
 
                 //konieczny if, bez niego nie moge ustalac prawidlowych wartosci zmiennych
                 //zapobiega usuwaniu przez if'a dla endNode to co bylo ustawione w if'e startNode
@@ -350,53 +325,20 @@ int main()
 
 
         // ------------ A* ALGHORITHM ------------ //
-        // ------------ BUTTONS LOGIC ------------ //
+              
         
-        //sprawdzanie flag przyciskow
-        //TODO: bycmoze moge sie tych ifów pozbyc ustawiajac  CLICKED_BTN = ""; pod koniec tej sekcji
-        // a w kazdej funkcji przy nacisnieciu klawisz modyfikowac zmienne globalne
-        //po kazdym kliknieciu klawisz CLICKED_BTN musi byc zresetowany, zeby te ify sie nie wykonywale, ale to chyba nic nie zmienia i tak
-        if (CLICKED_BTN == START_BTN) {
-            std::cout << "START_BTN" << std::endl;
-            RUN_ALGORITHM = true;
-            CLICKED_BTN = "";
-        }
-        else if (CLICKED_BTN == BREAK_BTN) {
-            RUN_ALGORITHM = false;
-            CLICKED_BTN = "";
-        }
-        else if (CLICKED_BTN == BOARD_RESET_BTN and nodesBoard.boardState == ACTIVE) {
-            //TODO:: wykonaj operacje usuwania obecnych informacji
-            
-            CLICKED_BTN = "";
-        }
-        else if (CLICKED_BTN == PATH_RESET_BTN and nodesBoard.boardState == ACTIVE) {
-            
-            CLICKED_BTN = "";
-        }
-
-
-        //tego nie moge usunac z main() poniewaz  exploreNodes() nodes musi wykonac x iteracji
-        // a jak wykonalbym to w funkcji przycisku, no to byla by tylko jedna iteracja, chyba ze 
-        //nie zmienilbym flagi przycisku i bylby ciagle wlaczony, ale to chyba nie ma sensu???
         if (RUN_ALGORITHM == true) {
 
-           //vizualization delay
-            sf::sleep(sf::microseconds(10));
-            nodesBoard.exploreNodes();
+            sf::sleep(sf::microseconds(10));    //visualization delay
+            nodesBoard.exploreNodes();          //main visualization function
         }
 
 
-        // warunek zakonczenia wizualizacji
+        //condition of ending visualization
         if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
-            CLICKED_BTN = "";
             RUN_ALGORITHM = false;
-            nodesBoard.boardState = ACTIVE;
-            //dla warunku PATH_NOT_EXIST nie moge tu wywolac funkcji showPAth()
-
+            nodesBoard.boardState = ACTIVE;           
         }
-
-       /* CLICKED_BTN = "";*/ //TODO:: do sprawdzenia pozniej
        
         // ------------ A* ALGHORITHM ------------ //
 
@@ -429,171 +371,8 @@ int main()
 
     }
     return EXIT_SUCCESS;
+
 }
-
-
-
-
-
-
-
-//bool checkIsMouseOnBoard(Board& board, int mouse_x, int mouse_y) {
-//
-//    int size = board.nodeSize;
-//    int origin = board.nodeSize / 2;
-//    int border = board.nodeBorder;
-//
-//    //int firstNodeX = board.nodesBoard2D[0][0].screenX - origin - border;
-//    //int firstNodeY = board.nodesBoard2D[0][0].screenY - origin - border;
-//    ////w przypadku gdy granice sie na siebie nakladaja, nalozona granica wskazuje na kolejny"wezel"
-//    ////dlatego tu nie moze byc origin+border, poniewaz ten border przy dzieleniu przez (size+borde) wskazuje na kolejny wezel
-//    ////o wspolrzednych ktorych nie ma w nodesBoard
-//    //int lastNodeX = board.nodesBoard2D.back().back().screenX + origin;
-//    //int lastNodeY = board.nodesBoard2D.back().back().screenY + origin;
-//
-//    int firstNodeX = board.nodesBoard2D[0][0].screenX;
-//    int firstNodeY = board.nodesBoard2D[0][0].screenY;
-//    int lastNodeX = board.nodesBoard2D.back().back().screenX;
-//    int lastNodeY = board.nodesBoard2D.back().back().screenY;
-//
-//    int leftBoardBorder = firstNodeX - origin - border;
-//    int topBoardBorder = firstNodeY - origin - border;
-//    int rightBoardBorder = lastNodeX + origin;
-//    int bottomBoardBorder = lastNodeY + origin;
-//
-//    //check if mouse is outside nodesBoard
-//    std::cout << "check cursor possition" << std::endl;
-//
-//    //jak w tym miejscu nic nie zwracac zeby uniknac sprawdzania czy przeslane wspolrzedne sa dobre czy zle
-//    if (mouse_x <= leftBoardBorder or mouse_x >= rightBoardBorder) return false;    
-//    if (mouse_y <= topBoardBorder or mouse_y >= bottomBoardBorder) return false;
-//
-//    std::cout << "cursor on the nodesBoard" << std::endl;
-//    return true;
-//   
-//}
-
-
-
-
-//Cords mouseToBoardIndexes(Board& board, int mouse_x, int mouse_y) {
-//    
-//    Cords newCords;
-//    newCords.x = -1;    //bad value
-//    newCords.y = -1;    //bad value
-//
-//    int size = board.nodeSize;
-//    int origin = board.nodeSize / 2;
-//    int border = board.nodeBorder;
-//
-//    //int firstNodeX = board.nodesBoard2D[0][0].screenX - origin - border;
-//    //int firstNodeY = board.nodesBoard2D[0][0].screenY - origin - border;
-//    ////w przypadku gdy granice sie na siebie nakladaja, nalozona granica wskazuje na kolejny"wezel"
-//    ////dlatego tu nie moze byc origin+border, poniewaz ten border przy dzieleniu przez (size+borde) wskazuje na kolejny wezel
-//    ////o wspolrzednych ktorych nie ma w nodesBoard
-//    //int lastNodeX = board.nodesBoard2D.back().back().screenX + origin;
-//    //int lastNodeY = board.nodesBoard2D.back().back().screenY + origin;
-//
-//    int firstNodeX = board.nodesBoard2D[0][0].screenX;
-//    int firstNodeY = board.nodesBoard2D[0][0].screenY;
-//    int lastNodeX = board.nodesBoard2D.back().back().screenX;
-//    int lastNodeY = board.nodesBoard2D.back().back().screenY;
-//
-//    int leftBoardBorder = firstNodeX - origin - border;
-//    int topBoardBorder = firstNodeY - origin - border;
-//    int rightBoardBorder = lastNodeX + origin;
-//    int bottomBoardBorder = lastNodeY + origin;
-//
-//    //check if mouse is outside nodesBoard
-//    //std::cout << "check cursor possition" << std::endl;
-//
-//    //jak w tym miejscu nic nie zwracac zeby uniknac sprawdzania czy przeslane wspolrzedne sa dobre czy zle
-//    if (mouse_x <= leftBoardBorder or mouse_x >= rightBoardBorder) {
-//        isMouseOnBoard = false;
-//        return newCords;  //returns bad coords
-//    }
-//    if (mouse_y <= topBoardBorder or mouse_y >= bottomBoardBorder) {
-//        isMouseOnBoard = false;
-//        return newCords; //returns bad coords
-//    }
-//        
-//    //std::cout << "cursor on the nodesBoard" << std::endl;
-//    isMouseOnBoard = true;
-//    //determine node position based on mouse coordinates
-//    int row = (mouse_x - leftBoardBorder) / (size + border);
-//    int col = (mouse_y - topBoardBorder) / (size + border);
-//    
-//    newCords.x = row;   //good value
-//    newCords.y = col;   //good value
-//    
-//    return newCords;
-//  
-//}
-
-
-
-//void putObstacles(Board &board)
-//{
-//    Cords nodeCordsInBoard;
-//    nodeCordsInBoard = mouseToBoardIndexes(board, mouseX, mouseY);
-//    int row = nodeCordsInBoard.x;
-//    int col = nodeCordsInBoard.y;
-//
-//    //check if mouse is on the board
-//    //TODO: ten if jest do usuniecia
-//    if (row == -1 or col == -1) return;  
-//   
-//    Node *node = &board.nodesBoard2D[col][row];
-//
-//    //check if mouse is not over the START_NODE or END_NODE
-//    if (node->nodeType == START_NODE or node->nodeType == END_NODE or node->nodeType == OBSTACLE) return;
-//    
-//    //to zapobiega malowaniu Node'ow ktore sa CLOSED lub OPEN jak wcisnie sie STOP podczas wizualizacji
-//    //TODO: blokada rysowania po polach CLOSED powinna byc regulowana przez ALGORITHM_STATE
-//   //W aktualnej logice to jest nie potrzebne
-//    /* if (node->nodeState == NONE) {
-//        node->nodeType = OBSTACLE;
-//        node->node.setFillColor(sf::Color(70, 70, 70));
-//    }*/
-//
-//    node->nodeType = OBSTACLE;
-//    node->node.setFillColor(sf::Color(70, 70, 70));
-//    
-//    
-//}
-
-
-
-//void eraseObstacles(Board& board)
-//{
-//    Cords nodeCordsInBoard;
-//    nodeCordsInBoard = mouseToBoardIndexes(board, mouseX, mouseY);
-//    int row = nodeCordsInBoard.x;
-//    int col = nodeCordsInBoard.y;
-//
-//    //check if mouse is on the board
-//    if (row == -1 or col == -1) return;
-//
-//    Node* node = &board.nodesBoard2D[col][row];
-//
-//    //check if mouse is not over the START_NODE or END_NODE
-//    if (node->nodeType == START_NODE or node->nodeType == END_NODE or node->nodeType == WALKABLE) return;
-//    node->nodeType = WALKABLE;
-//    node->node.setFillColor(sf::Color(170, 170, 170));
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

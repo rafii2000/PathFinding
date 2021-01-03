@@ -79,14 +79,12 @@ public:
 		this->nodeType = nodeType;
 		this->window = window;
 
-	
 		node.setPosition(screenX, screenY);
 		node.setSize(sf::Vector2f(nodeSize, nodeSize));
 		node.setOrigin(sf::Vector2f(origin, origin));
 		node.setOutlineThickness(nodeBorder);
 		node.setFillColor(sf::Color(170, 170, 170));
 		node.setOutlineColor(sf::Color(110, 110, 110));
-
 
 		if (nodeType == START_NODE) {
 			std::cout << "startNode" << std::endl;
@@ -104,22 +102,16 @@ public:
 
 
 	bool isMouseOn(int mouse_x, int mouse_y);
-	void putObstacles();
-	void eraseObstacles();
 
+	void putObstacles();
+	
+	void eraseObstacles();
 
 	void setDefaultAttributes();
 
 	void makeWalkable();
-
-	
-	
 	
 	void draw();
-
-	
-
-
 	
 
 };
