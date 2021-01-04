@@ -8,23 +8,15 @@ class Board;
 
 
 enum node_states { NONE = 0, OPEN, CLOSED };
+enum node_types { START_NODE =0, END_NODE, OBSTACLE, WALKABLE};
 
-//TODO: chenhe to: enum noede_types {};
-const std::string START_NODE = "startNode";
-const std::string END_NODE = "endNode";
-const std::string OBSTACLE = "obstacle";
-const std::string WALKABLE = "walkable";
 
 
 class Node: sf::RectangleShape
 {
 
-
-
 friend class Board;
-friend int main(); 
-// w sumie to wszystkie operacuje na Node'ach robie przez klase Board wiec ten frien main() chyba nie potrzebny
-
+friend int main();	//required in drag_mode
 
 
 private:
@@ -32,16 +24,14 @@ private:
 	//A* algorithm properties
 	int x;
 	int y;
-	int parrentX; //pointers to 
-	int parrentY;
-	int gCost; //distance form starting node
-	int hCost; //distance from ending node
+	int gCost; //distance form starting node to currentNode
+	int hCost; //distance from ending node to Current
 	int fCost; //sum gCost + hCost
 	short unsigned nodeState = NONE;
+	short unsigned nodeType;
 	Node* parentNode = nullptr; // 
-	std::string nodeType; // W-walkable | O-obstacle | S-starNode | E-endNode
 
-
+	
 	//RectangleShape properties
 	int screenX;
 	int screenY;
@@ -63,7 +53,7 @@ public:
 
 	
 	//constructor	
-	Node(int nodeSize, int nodeBorder, int screenX, int screenY, int boardX, int boardY, sf::RenderWindow *window, std::string nodeType) {
+	Node(int nodeSize, int nodeBorder, int screenX, int screenY, int boardX, int boardY, sf::RenderWindow *window, short unsigned nodeType) {
 		
 		this->nodeSize = nodeSize;
 		this->nodeBorder = nodeBorder;

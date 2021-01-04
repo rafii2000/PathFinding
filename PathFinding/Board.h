@@ -15,9 +15,6 @@ enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba
 
 extern btn_id clicked_btn;
 
-
-
-
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
@@ -32,10 +29,7 @@ struct Coordinates {
 class Board
 {
 
-
 friend int main(); //zeby to ususnac to isMouseOnBoard i boardState musza byc public
-
-
 
 
 private:

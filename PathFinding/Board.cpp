@@ -46,20 +46,20 @@ void Board::createBoard()
 
 			if (nodeColumnPos == col and startNodeRowPos == row) {
 				//add startNode to the nodesBoard
-				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, "startNode"));
+				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, START_NODE));
 				startNodeCords.x = row;
 				startNodeCords.y = col;
 
 			}
 			else if (nodeColumnPos == col and endNodeRowPos == row) {
 				//add endNode to the nodesBoard
-				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, "endNode"));
+				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, END_NODE));
 				endNodeCords.x = row;
 				endNodeCords.y = col;
 			}
 			else {
 				//add walkable nodes to the nodesBoard
-				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, "walkable"));
+				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, WALKABLE));
 			}
 
 			screenX += nodeSize + nodeBorder; //obramowki nakaldaja sie na siebie
