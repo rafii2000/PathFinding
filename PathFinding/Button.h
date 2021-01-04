@@ -3,14 +3,17 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
-extern std::string mouseState;
+#include "Constants.h"
+
+
+
+extern mf mouseState;
+extern btn_id clicked_btn;
+
+
 extern bool CLICK_EVENT;
 
-extern const std::string START_BTN;
-extern const std::string BREAK_BTN;
-extern const std::string PATH_RESET_BTN;
-extern const std::string BOARD_RESET_BTN;
-extern std::string CLICKED_BTN;
+
 
 
 //Opis dzialania przyciskow:
@@ -28,7 +31,7 @@ class Button: sf::RectangleShape
 private:
 
 	short unsigned buttonState;
-	std::string buttonID;
+	btn_id buttonID;
 
 	sf::RectangleShape shape;
 	sf::Font* font;
@@ -42,16 +45,16 @@ private:
 	
 public:
 
-	Button(int x, int y, int width, int height, sf::Font* font, std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, std::string buttonID);
+	Button(int x, int y, int width, int height, sf::Font* font, std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, btn_id buttonID);
 
-	~Button();
-
-
+	
 	//Accesors
 	const bool isPressed();
 
 	//Functions 
-	void update(const sf::Vector2f mousePos);
+	//void update(const sf::Vector2f mousePos);
+
+	void update(int mouseX, int mouseY);
 	void render(sf::RenderWindow* window);
 
 

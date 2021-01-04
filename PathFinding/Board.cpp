@@ -185,7 +185,7 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 void Board::callFunctionOnButtonClick()
 {
 
-	if (CLICKED_BTN == START_BTN) {
+	if (clicked_btn == btn_id::START_BTN) {
 
 		//block board, because the visualization is runnig
 		std::cout << "START_BTN" << std::endl;
@@ -195,20 +195,20 @@ void Board::callFunctionOnButtonClick()
 		resetAlgorithmAttributes();
 				
 	}
-	else if (CLICKED_BTN == BREAK_BTN) {
+	else if (clicked_btn == btn_id::BREAK_BTN) {
 
 		RUN_ALGORITHM = false;
 		boardState = ACTIVE;
 		
 	}
-	else if (CLICKED_BTN == BOARD_RESET_BTN) {
+	else if (clicked_btn == btn_id::BOARD_RESET_BTN) {
 		
 		if (boardState == ACTIVE) 
 			clearBoard();
 		
 			
 	}
-	else if (CLICKED_BTN == PATH_RESET_BTN) {
+	else if (clicked_btn == btn_id::PATH_RESET_BTN) {
 		
 		if (boardState == ACTIVE)
 			clearPath();
@@ -217,7 +217,7 @@ void Board::callFunctionOnButtonClick()
 	//after each click on the button CLICKED_BTN flag has to be cleared, beacause 
 	//each function assign to button can be call only once, otherwise CLICKED_BTN 
 	//would have assign previous value, until next button would be clicked
-	CLICKED_BTN = "";
+	clicked_btn = btn_id::NONE;
 
 }
 

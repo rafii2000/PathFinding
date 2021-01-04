@@ -2,43 +2,30 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
+#include "Constants.h"
+
 #include "Node.h"
 #include "Board.h"
 #include "Button.h"
 
 
 
-//mouse state flags
-const std::string PRESSED = "pressed";
-const std::string LEFT_PRESSED = "left";
-const std::string RIGHT_PRESSED = "right";
-const std::string RELEASED = "released";
-
-enum class mouse_flags { PRESSED = 0, LEFT_PRESSED, RIGHT_PRESSED, RELEASED };
-
-mouse_flags mouseFlag = mouse_flags::RELEASED;
-
 
 //mouse properties
 int mouseX; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
 int mouseY; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
-std::string mouseState = RELEASED;
+mf mouseState = mf::RELEASED;
 
 
 //buttons state flags
+btn_id clicked_btn = btn_id::NONE;
 bool CLICK_EVENT = false;
-const std::string START_BTN = "start_btn";
-const std::string BREAK_BTN = "break_btn";
-const std::string PATH_RESET_BTN = "path_reset_btn";
-const std::string BOARD_RESET_BTN = "board_reset_btn";
-std::string CLICKED_BTN = "";
 
 
 //drag mode flags
 bool DRAG_MODE = false;
 bool START_NODE_DRAG_MODE = false;
 bool END_NODE_DRAG_MODE = false;
-
 
 //A*
 bool RUN_ALGORITHM = false;
@@ -71,26 +58,26 @@ int main()
     Button startButton(1100, 35, 130, 50, &font, "Start",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), START_BTN
+        sf::Color(120, 120, 120), btn_id::START_BTN
     );
 
     Button breakButton(1300, 35, 130, 50, &font, "Break",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), BREAK_BTN
+        sf::Color(120, 120, 120), btn_id::BREAK_BTN
     );
 
     
     Button pathResetButton(1500, 35, 130, 50, &font, "Path Reset",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), PATH_RESET_BTN
+        sf::Color(120, 120, 120), btn_id::PATH_RESET_BTN
     );
 
     Button boardResetButton(1700, 35, 130, 50, &font, "Board Reset",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), BOARD_RESET_BTN
+        sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN
     );
 
     //TODO: Add button allow/disallow diagonal
@@ -119,15 +106,15 @@ int main()
             if (event.type == sf::Event::MouseButtonPressed) {
                 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {                    
-                    mouseState = LEFT_PRESSED;
+                    mouseState = mf::LEFT_PRESSED;
                 }
 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {                    
-                    mouseState = RIGHT_PRESSED;
+                    mouseState = mf::RIGHT_PRESSED;
                 }               
             }
             else if (event.type == sf::Event::MouseButtonReleased) {                         
-                mouseState = RELEASED;
+                mouseState = mf::RELEASED;
                 CLICK_EVENT = true;
             }
             
@@ -153,11 +140,11 @@ int main()
 
         //check if any buttons is being clicked or hovered
         if (nodesBoard.isMouseOnBoard == false) {
-            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-            startButton.update(mousePos);
-            breakButton.update(mousePos);
-            pathResetButton.update(mousePos);
-            boardResetButton.update(mousePos);            
+                        
+            startButton.update(mouseX, mouseY);
+            breakButton.update(mouseX, mouseY);
+            pathResetButton.update(mouseX, mouseY);
+            boardResetButton.update(mouseX, mouseY);
         }
 
         //call proper function
@@ -178,7 +165,7 @@ int main()
         if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {                 
            
             //drag selected node (startNode or endNode) 
-            if (mouseState == LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
+            if (mouseState == mf::LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
 
                 int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x; //dwa razy wywoluje ta sama funckje
                 int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y; //dwa razy wywoluje ta sama funckje
@@ -201,7 +188,7 @@ int main()
                 }
                     
             }
-            else if (mouseState == LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
+            else if (mouseState == mf::LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
                 
                 int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
                 int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
@@ -245,19 +232,19 @@ int main()
 
 
 
-            if (mouseState == LEFT_PRESSED and DRAG_MODE == false) {
+            if (mouseState == mf::LEFT_PRESSED and DRAG_MODE == false) {
                 
                 nodesBoard.putObstacles(mouseX, mouseY);
             }
 
-            if (mouseState == RIGHT_PRESSED and DRAG_MODE == false ) {
+            if (mouseState == mf::RIGHT_PRESSED and DRAG_MODE == false ) {
                 
                 nodesBoard.eraseObstacles(mouseX, mouseY);
             }
 
 
             //Turn on/off drag mode
-            if (mouseState == RELEASED) {                
+            if (mouseState == mf::RELEASED) {                
                 
                 //Node's color flags
                 sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);

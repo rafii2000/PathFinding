@@ -5,7 +5,7 @@
 Button::Button(int x, int y, int width, int height, 
 	sf::Font *font, std::string text, 
 	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
-	std::string buttonID)
+	btn_id buttonID)
 {
 	
 	this->buttonState = BTN_IDLE;
@@ -35,13 +35,6 @@ Button::Button(int x, int y, int width, int height,
 }
 
 
-//destructor
-Button::~Button()
-{
-}
-
-
-
 
 const bool Button::isPressed()
 {
@@ -54,7 +47,7 @@ const bool Button::isPressed()
 	return false;
 }
 
-void Button::update(const sf::Vector2f mousePos)
+void Button::update(int mouseX, int mouseY)
 {
 	/*Update the booleans for hover and pressed*/
 
@@ -62,12 +55,12 @@ void Button::update(const sf::Vector2f mousePos)
 	this->buttonState = BTN_IDLE;
 	
 	//Hover 	
-	if (this->shape.getGlobalBounds().contains(mousePos)) {
+	if (this->shape.getGlobalBounds().contains({(float)mouseX, (float)mouseY})) {
 
 		this->buttonState = BTN_HOVER;
 		
 		//Pressed
-		if (mouseState == "left") {
+		if (mouseState == mf::LEFT_PRESSED) {
 
 			this->buttonState = BTN_ACTIVE;
 
@@ -118,16 +111,16 @@ void Button::callButtonFunction()
 {
 	//change the current clicked button flag
 
-	if (buttonID == START_BTN) {
+	if (buttonID == btn_id::START_BTN) {
 		onStartButtonClick();
 	}
-	else if (buttonID == BREAK_BTN) {
+	else if (buttonID == btn_id::BREAK_BTN) {
 		onBreakButtonClick();
 	}
-	else if (buttonID == BOARD_RESET_BTN) {
+	else if (buttonID == btn_id::BOARD_RESET_BTN) {
 		onBoardResetButtonClick();
 	}
-	else if (buttonID == PATH_RESET_BTN) {
+	else if (buttonID == btn_id::PATH_RESET_BTN) {
 		onPathResetButtonClick();
 	}
 }
@@ -136,26 +129,26 @@ void Button::callButtonFunction()
 void Button::onStartButtonClick()
 {
 	//change CLICKED_BTN flag
-	CLICKED_BTN = START_BTN;
+	clicked_btn = btn_id::START_BTN;
 }
 
 void Button::onBreakButtonClick()
 {
 	//change CLICKED_BTN flag
-	CLICKED_BTN = BREAK_BTN;
+	clicked_btn = btn_id::BREAK_BTN;
 
 }
 
 void Button::onBoardResetButtonClick()
 {
 	//change CLICKED_BTN flag
-	CLICKED_BTN = BOARD_RESET_BTN;
+	clicked_btn = btn_id::BOARD_RESET_BTN;
 }
 
 void Button::onPathResetButtonClick()
 {
 	//change CLICKED_BTN flag
-	CLICKED_BTN = PATH_RESET_BTN;
+	clicked_btn = btn_id::PATH_RESET_BTN;
 }
 
 

@@ -1,8 +1,11 @@
 #pragma once
 #include <iostream>
 #include <vector>
+
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
+
+#include "Constants.h"
 #include "Node.h"
 
 
@@ -10,11 +13,9 @@
 
 enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba lepsze
 
-extern const std::string START_BTN;
-extern const std::string BREAK_BTN;
-extern const std::string PATH_RESET_BTN;
-extern const std::string BOARD_RESET_BTN;
-extern std::string CLICKED_BTN;
+extern btn_id clicked_btn;
+
+
 
 
 extern bool RUN_ALGORITHM;
@@ -88,9 +89,7 @@ private:
 
 public:
 
-
-	Board(){}
-
+	//constructor
 	Board(sf::RenderWindow& window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
 
 		this->window = &window;

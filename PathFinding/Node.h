@@ -9,9 +9,7 @@ class Board;
 
 enum node_states { NONE = 0, OPEN, CLOSED };
 
-
-
-
+//TODO: chenhe to: enum noede_types {};
 const std::string START_NODE = "startNode";
 const std::string END_NODE = "endNode";
 const std::string OBSTACLE = "obstacle";
@@ -64,9 +62,7 @@ private:
 public:
 
 	
-	//constructor
-	Node(){}
-
+	//constructor	
 	Node(int nodeSize, int nodeBorder, int screenX, int screenY, int boardX, int boardY, sf::RenderWindow *window, std::string nodeType) {
 		
 		this->nodeSize = nodeSize;
