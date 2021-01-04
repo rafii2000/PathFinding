@@ -8,7 +8,7 @@
 
 
 extern mf mouseState;
-extern btn_id clicked_btn;
+extern btn_id CLICKED_BTN;
 
 
 extern bool CLICK_EVENT;
@@ -52,9 +52,8 @@ public:
 	const bool isPressed();
 
 	//Functions 
-	//void update(const sf::Vector2f mousePos);
-
 	void update(int mouseX, int mouseY);
+	
 	void render(sf::RenderWindow* window);
 
 

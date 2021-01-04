@@ -13,7 +13,7 @@
 
 enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba lepsze
 
-extern btn_id clicked_btn;
+extern btn_id CLICKED_BTN;
 
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;

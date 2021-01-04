@@ -18,7 +18,7 @@ mf mouseState = mf::RELEASED;
 
 
 //buttons state flags
-btn_id clicked_btn = btn_id::NONE;
+btn_id CLICKED_BTN = btn_id::NONE;
 bool CLICK_EVENT = false;
 
 
@@ -340,8 +340,7 @@ int main()
 
 
         // Draw elements
-        window.draw(text);
-        
+        window.draw(text);        
         nodesBoard.draw();
 
         startButton.render(&window);

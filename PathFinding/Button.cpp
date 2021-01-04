@@ -129,26 +129,26 @@ void Button::callButtonFunction()
 void Button::onStartButtonClick()
 {
 	//change CLICKED_BTN flag
-	clicked_btn = btn_id::START_BTN;
+	CLICKED_BTN = btn_id::START_BTN;
 }
 
 void Button::onBreakButtonClick()
 {
 	//change CLICKED_BTN flag
-	clicked_btn = btn_id::BREAK_BTN;
+	CLICKED_BTN = btn_id::BREAK_BTN;
 
 }
 
 void Button::onBoardResetButtonClick()
 {
 	//change CLICKED_BTN flag
-	clicked_btn = btn_id::BOARD_RESET_BTN;
+	CLICKED_BTN = btn_id::BOARD_RESET_BTN;
 }
 
 void Button::onPathResetButtonClick()
 {
 	//change CLICKED_BTN flag
-	clicked_btn = btn_id::PATH_RESET_BTN;
+	CLICKED_BTN = btn_id::PATH_RESET_BTN;
 }
 
 
