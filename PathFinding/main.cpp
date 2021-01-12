@@ -9,17 +9,17 @@
 #include "Button.h"
 
 
-
-
 //mouse properties
-int mouseX; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
-int mouseY; //zastanawiam sie czy importowac to jako zmienne globalne do klasy Board, zeby funkcje mogly byc bezparametrowe??
-mf mouseState = mf::RELEASED;
+int mouseX;
+int mouseY;
+mf MOUSE_STATE = mf::RELEASED;
 
 
 //buttons state flags
 btn_id CLICKED_BTN = btn_id::NONE;
 bool CLICK_EVENT = false;
+
+btn_id Button::clicked_button = btn_id::NONE;
 
 
 //drag mode flags
@@ -31,7 +31,6 @@ bool END_NODE_DRAG_MODE = false;
 bool RUN_ALGORITHM = false;
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
-//bool ALLOW_DIAGONAL = false;    //TODO: add new functionality
 
 
 int main()
@@ -53,8 +52,9 @@ int main()
    
     // Create a most important part of program - board of nodes
     Board nodesBoard(window, 30, 1, 58, 27);
+    //Board nodesBoard(window, 15, 1, 116, 54);
         
-    // Create buttons
+    // Create a buttons
     Button startButton(1100, 35, 130, 50, &font, "Start",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
@@ -66,7 +66,6 @@ int main()
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), btn_id::BREAK_BTN
     );
-
     
     Button pathResetButton(1500, 35, 130, 50, &font, "Path Reset",
         sf::Color(170, 170, 170),
@@ -80,7 +79,6 @@ int main()
         sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN
     );
 
-    //TODO: Add button allow/disallow diagonal
 
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
     
@@ -106,15 +104,15 @@ int main()
             if (event.type == sf::Event::MouseButtonPressed) {
                 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {                    
-                    mouseState = mf::LEFT_PRESSED;
+                    MOUSE_STATE = mf::LEFT_PRESSED;
                 }
 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {                    
-                    mouseState = mf::RIGHT_PRESSED;
+                    MOUSE_STATE = mf::RIGHT_PRESSED;
                 }               
             }
             else if (event.type == sf::Event::MouseButtonReleased) {                         
-                mouseState = mf::RELEASED;
+                MOUSE_STATE = mf::RELEASED;
                 CLICK_EVENT = true;
             }
             
@@ -145,10 +143,10 @@ int main()
             breakButton.update(mouseX, mouseY);
             pathResetButton.update(mouseX, mouseY);
             boardResetButton.update(mouseX, mouseY);
-        }
 
-        //call proper function
-        nodesBoard.callFunctionOnButtonClick();
+            //call proper function
+            nodesBoard.callFunctionOnButtonClick();
+        }      
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
@@ -159,18 +157,15 @@ int main()
 
         // ------------ BOARD FUNCTIONALITIES ------------ //
 
-        //przeniesienie tych funkcji do klasy Board, wymagalo by udostepniania pozycji kursora
-        //i innych zmiennych informujacych o stanie programu, warto tak ????
-
         if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {                 
            
             //drag selected node (startNode or endNode) 
-            if (mouseState == mf::LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
+            if (MOUSE_STATE == mf::LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
 
-                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x; //dwa razy wywoluje ta sama funckje
-                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y; //dwa razy wywoluje ta sama funckje
+                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
+                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
 
-                //forbid dragging starNode on obstacles and endNode
+                //forbid dragging startNode on obstacles and endNode
                 if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
 
                     //prevent from clearing the node, which mouse is pointing and is already highlighted
@@ -178,7 +173,7 @@ int main()
                         nodesBoard.previousDrgged = nodesBoard.currentDrgged;
                         nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
 
-                        //swap walkable Node's  with starNode 
+                        //swap walkable Node's with starNode 
                         nodesBoard.startNodeCords.x = currentNodeX;
                         nodesBoard.startNodeCords.y = currentNodeY;
                         nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = START_NODE;
@@ -188,7 +183,7 @@ int main()
                 }
                     
             }
-            else if (mouseState == mf::LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
+            else if (MOUSE_STATE == mf::LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
                 
                 int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
                 int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
@@ -231,20 +226,21 @@ int main()
             }
 
 
-
-            if (mouseState == mf::LEFT_PRESSED and DRAG_MODE == false) {
+            //put obstacle on Node, which mouse is pointing
+            if (MOUSE_STATE == mf::LEFT_PRESSED and DRAG_MODE == false) {
                 
                 nodesBoard.putObstacles(mouseX, mouseY);
             }
 
-            if (mouseState == mf::RIGHT_PRESSED and DRAG_MODE == false ) {
+            //remove obstacle from Node is pointed by mouse
+            if (MOUSE_STATE == mf::RIGHT_PRESSED and DRAG_MODE == false ) {
                 
                 nodesBoard.eraseObstacles(mouseX, mouseY);
             }
 
 
             //Turn on/off drag mode
-            if (mouseState == mf::RELEASED) {                
+            if (MOUSE_STATE == mf::RELEASED) {                
                 
                 //Node's color flags
                 sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);
@@ -258,7 +254,7 @@ int main()
                 int endNodeX = nodesBoard.endNodeCords.x;
                 int endNodeY = nodesBoard.endNodeCords.y;
 
-               //manage start_node_drag_mode
+               //turn on / turn off START_NODE_DRAG_MODE
                 if (nodesBoard.nodesBoard2D[startNodeY][startNodeX].isMouseOn(mouseX, mouseY) == true) {
                    
                     START_NODE_DRAG_MODE = true;
@@ -272,7 +268,7 @@ int main()
                     nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(sf::Color::Green);
                 }
                 
-                //manage end_node_drag_mode
+                //turn on / turn off END_NODE_DRAG_MODE
                 if (nodesBoard.nodesBoard2D[endNodeY][endNodeX].isMouseOn(mouseX, mouseY) == true) {
 
                     END_NODE_DRAG_MODE = true;
@@ -286,8 +282,7 @@ int main()
                 }
 
 
-                //konieczny if, bez niego nie moge ustalac prawidlowych wartosci zmiennych
-                //zapobiega usuwaniu przez if'a dla endNode to co bylo ustawione w if'e startNode
+                //set DRAG_MODE value (bool DRAG_MODE - additional variable to simplify code)
                 if (START_NODE_DRAG_MODE == true or END_NODE_DRAG_MODE == true) {
                     
                     DRAG_MODE = true;
@@ -311,15 +306,13 @@ int main()
 
 
 
-        // ------------ A* ALGHORITHM ------------ //
-              
+        // ------------ A* ALGHORITHM ------------ //              
         
         if (RUN_ALGORITHM == true) {
 
             sf::sleep(sf::microseconds(10));    //visualization delay
             nodesBoard.exploreNodes();          //main visualization function
         }
-
 
         //condition of ending visualization
         if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
@@ -334,25 +327,25 @@ int main()
 
 
         
-        // ------------ RENDERING FUNCTION ------------ //
+        // ------------ RENDERING FUNCTIONS ------------ //
         // Clear screen
         window.clear(sf::Color(170, 170, 170));
 
 
         // Draw elements
-        window.draw(text);        
+        window.draw(text);
         nodesBoard.draw();
 
         startButton.render(&window);
         breakButton.render(&window);
         pathResetButton.render(&window);
-        boardResetButton.render(&window);
+        boardResetButton.render(&window);      
 
 
         // Update the window
         window.display();
 
-        // ------------ RENDERING FUNCTION ------------ //
+        // ------------ RENDERING FUNCTIONS ------------ //
         
 
     }

@@ -38,11 +38,8 @@ Button::Button(int x, int y, int width, int height,
 
 const bool Button::isPressed()
 {
-
 	if (this->buttonState == BTN_ACTIVE)
-
-		//block board
-		return true;
+		return true; 
 	
 	return false;
 }
@@ -60,20 +57,18 @@ void Button::update(int mouseX, int mouseY)
 		this->buttonState = BTN_HOVER;
 		
 		//Pressed
-		if (mouseState == mf::LEFT_PRESSED) {
+		if (MOUSE_STATE == mf::LEFT_PRESSED) {
 
 			this->buttonState = BTN_ACTIVE;
 
 		}
-		//Click,
+		//Click (on button released)
 		else if (CLICK_EVENT == true) {
 	
 			std::cout << "CLICK_EVENT" << std::endl;
 			CLICK_EVENT = false;
 			callButtonFunction();
 		}
-			
-
 	}
 
 	switch (this->buttonState)
@@ -92,8 +87,7 @@ void Button::update(int mouseX, int mouseY)
 
 
 	default:
-		this->shape.setFillColor(sf::Color::Red);
-
+		this->shape.setFillColor(this->idleColor);
 		break;
 	}
 
@@ -136,7 +130,6 @@ void Button::onBreakButtonClick()
 {
 	//change CLICKED_BTN flag
 	CLICKED_BTN = btn_id::BREAK_BTN;
-
 }
 
 void Button::onBoardResetButtonClick()

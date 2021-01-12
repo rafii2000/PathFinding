@@ -39,12 +39,12 @@ void Node::eraseObstacles()
 
 void Node::setDefaultAttributes()
 {
-	// Node stuff
+	// Node properties
 	nodeState = NONE;
 	nodeType = WALKABLE;
 	node.setFillColor(sf::Color(170, 170, 170));
 
-	// A* stuff
+	// A* properties
 	gCost = 0;
 	hCost = 0;
 	fCost = 0;
@@ -60,6 +60,7 @@ void Node::makeWalkable()
 
 void Node::draw()
 {
+
 	window->draw(node);
 }
 

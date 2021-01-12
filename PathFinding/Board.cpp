@@ -7,8 +7,8 @@
 void Board::createBoard()
 {
 
-	int margin_x; //32
-	int margin_y; //96;
+	int margin_x; 
+	int margin_y;
 	
 	//center nodesBoard on the screen, means find position for the first node
 	int nodesBoardWidth = (nodesRowAmount * nodeSize) + ((nodesRowAmount + 1) * nodeBorder);
@@ -28,7 +28,6 @@ void Board::createBoard()
 	std::cout << "first Node cords x: " << screenX << " y: " << screenY << std::endl;
 
 
-	
 	//determine startNode and endNode horizontal position
 	int startNodeRowPos = nodesRowAmount / 4;
 	int endNodeRowPos = nodesRowAmount / 4 * 3;
@@ -62,7 +61,7 @@ void Board::createBoard()
 				nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, WALKABLE));
 			}
 
-			screenX += nodeSize + nodeBorder; //obramowki nakaldaja sie na siebie
+			screenX += nodeSize + nodeBorder;
 		}
 
 		screenX = margin_x;
@@ -86,9 +85,6 @@ void Board::setBoardBordersCords()
 	leftBorder = firstNodeX - nodeOrigin - nodeBorder;
 	topBorder = firstNodeY - nodeOrigin - nodeBorder;
 
-	//w przypadku gdy granice sie na siebie nakladaja, nalozona granica wskazuje na kolejny"wezel"
-	//dlatego tu nie moze byc origin+border, poniewaz ten border przy dzieleniu przez (size+borde) wskazuje na kolejny wezel
-	//o wspolrzednych ktorych nie ma w nodesBoard
 	rightBorder = lastNodeX + nodeOrigin;
 	bottomBorder = lastNodeY + nodeOrigin;
 }
@@ -112,19 +108,13 @@ void Board::draw()
 Coordinates Board::mouseToBoardIndexes(int mouseX, int mouseY)
 {
 	//function converts mouse possition to node coordinates in nodesBoard2D
-	//wykonuj tylko wtedy gdy mysz jest w Boardzie
-
+	
 	Coordinates nodeCords;
 	nodeCords.x = -1;    //bad value
 	nodeCords.y = -1;    //bad value
-
-	//jak w tym miejscu nic nie zwracac zeby uniknac sprawdzania czy przeslane wspolrzedne sa dobre czy zle???
-	//gdyby cos nie dzialalo to tutaj musze sam w tej funkcji sprawdzac isMouseOnBoard
-	//nie moge polegac na inncyh rzeczach
 	
 	if(isMouseOnBoard == false) return nodeCords; //returns bad coords
-	//if(checkIsMouseOnBoard(mouseX, mouseY) == false) return nodeCords; //returns bad coords, na wrazie W
-
+	
 	//determine node position based on mouse coordinates
 	int row = (mouseX - leftBorder) / (nodeSize + nodeBorder);
 	int col = (mouseY - topBorder) / (nodeSize + nodeBorder);
@@ -153,11 +143,9 @@ void Board::putObstacles(int mouseX, int mouseY)
 	int row = nodeCordsInBoard.x;
 	int col = nodeCordsInBoard.y;
 
-	//sprawdzam co zwrocila funkcja mouseToBoardIndexes()
+	//Check, what values have been returned
 	if (row == -1 or col == -1) return;
 	
-	//wywoluje moetode obiektu Node 
-	//(kod jest bardziej przejrzysty, nie mam dlugich nazw zmiennych)
 	nodesBoard2D[col][row].putObstacles();
 	
 }
@@ -170,12 +158,11 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 	int row = nodeCordsInBoard.x;
 	int col = nodeCordsInBoard.y;
 
-	//sprawdzam co zwrocila funkcja mouseToBoardIndexes()
+	//Check, what values have been returned
 	if (row == -1 or col == -1) return;
 
 	nodesBoard2D[col][row].eraseObstacles();
 }
-
 
 
 
@@ -191,7 +178,7 @@ void Board::callFunctionOnButtonClick()
 		std::cout << "START_BTN" << std::endl;
 		std::cout << "boardState = BLOCK;" << std::endl;
 		RUN_ALGORITHM = true;
-		boardState = BLOCK;
+		boardState = BLOCK;				
 		resetAlgorithmAttributes();
 				
 	}
@@ -214,7 +201,7 @@ void Board::callFunctionOnButtonClick()
 			clearPath();
 	}
 
-	//after each click on the button CLICKED_BTN flag has to be cleared, beacause 
+	//after each click on the button, CLICKED_BTN flag has to be cleared, beacause 
 	//each function assign to button can be call only once, otherwise CLICKED_BTN 
 	//would have assign previous value, until next button would be clicked
 	CLICKED_BTN = btn_id::NONE;
@@ -228,7 +215,7 @@ void Board::clearObstacles()
 
 			if (nodesBoard2D[col][row].nodeType == OBSTACLE) {
 
-				nodesBoard2D[col][row].nodeState = NONE; //tak dla bezpieczenstwa
+				nodesBoard2D[col][row].nodeState = NONE;
 				nodesBoard2D[col][row].nodeType = WALKABLE;
 				nodesBoard2D[col][row].node.setFillColor(sf::Color(170, 170, 170));
 			}
@@ -240,7 +227,7 @@ void Board::clearObstacles()
 
 void Board::clearPath()
 {
-	//Czysci kolory Node'ow, i resetuje ich wartosci 
+	
 	for (int col = 0; col < nodesColumnAmount; col++) {
 
 		for (int row = 0; row < nodesRowAmount; row++) {
@@ -252,14 +239,11 @@ void Board::clearPath()
 			}
 		}
 	}
-
 }
 
 void Board::clearBoard()
 {
 
-	//TODO:  wyczysc openNodes i closedNodes i nextMasterNode, robie to na klikniecie start
-	//wiec tak jakby tym miejscu jest to nie konieczne
 	for (int col = 0; col < nodesColumnAmount; col++) {
 		for (int row = 0; row < nodesRowAmount; row++) {
 
@@ -268,15 +252,15 @@ void Board::clearBoard()
 				//set default values on each Node in nodesBoard
 				nodesBoard2D[col][row].setDefaultAttributes();
 			}
-
 		}
 	}
 }
 
 void Board::resetAlgorithmAttributes()
 {
-	//ta funkcja wywoluje sie na klikniecie przycisku START
-	//resetuje wszystko poza obstacles, startNode, endNode
+	
+	//function is called on START_BUTTON click
+	//reset all Nodes without obstacles, startNode, endNode
 
 	IS_PATH_FOUND = false;
 	PATH_NOT_EXIST = false;
@@ -306,41 +290,27 @@ void Board::resetAlgorithmAttributes()
 
 // -------- A* ALGORITHM LOGIC -------- //
 
-//TODO: nie dziala szukanie dorgi z uwzglednieniem przekatnych
 
 void Board::exploreNodes()
 {
-	/*
-	 Nodes indication
-		1  2  3
-		8  X  4
-		7  6  5
-	*/
-
+	
 	int x = 0;  //wspolrzedne aktualnie zamknietego wezla (masterX)
 	int y = 0; //wspolrzedne aktualnie zamknietego wezla (masterY)
 
 	
-	/*moge to isntrukcje dodac poza ta funkcja i wszytko powinno smigac*/
 	if (openNodes.size() == 0) {
 		//jako wezel poczatkowy uwstaw startNode
 		//dodaj go do listy wezlow zbadanych (CLOSED)
 		x = startNodeCords.x;
 		y = startNodeCords.y;		
 
-		nodesBoard2D[y][x].nodeState = CLOSED;		// set  startNode's nodeState to CLOSED
-		closedNodes.push_back(&nodesBoard2D[y][x]); // add startNode to closedNodes vector
+		nodesBoard2D[y][x].nodeState = CLOSED;		// ustaw stan startNode's na CLOSED
+		closedNodes.push_back(&nodesBoard2D[y][x]); // dodaj startNode do closedNodes
 	}
 	else {
-		//z listy openNodes wybierz wezel o najmniejszym koszcie i go zbadaj
-		//x = przypisz wspolrzedna X wybranego Node'a
-		//y = przypisz wspolrzedna Y wybranego Node'a
-		
-		//dodaj do do listy wezlow zbadanych (CLOSED)	
 			
-
 		nextMasterNode = openNodes[0];	// inicjuje pierwsza zmienna do algorytmu szukania minimum
-		int index = 0;					// przechowuje index najmnijeszego elementu z vectora openNodes
+		int index = 0;					// przechowuje index najmniejszego elementu z vectora openNodes
 		for (int i = 0; i < openNodes.size(); i++) {
 
 			//najpierw porownaj fCost jesli takie same sprawdz hCost
@@ -354,8 +324,8 @@ void Board::exploreNodes()
 			}
 		}
 
-		x = nextMasterNode->x;	//przypisuje wspolrzedna X wybranego wezla (krotsza nazwa zmiennej)
-		y = nextMasterNode->y;	//przypisuje wspolrzedna Y wybranego wezla (krotsza nazwa zmiennej)
+		x = nextMasterNode->x;	//przypisuje wspolrzedna X wybranego wezla 
+		y = nextMasterNode->y;	//przypisuje wspolrzedna Y wybranego wezla
 
 		nodesBoard2D[y][x].nodeState = CLOSED;				//zmien stan wezla na CLOSED
 		closedNodes.push_back(&nodesBoard2D[y][x]);			//dodaj wezel do listy wezlow zbadanych(CLOSED)
@@ -394,33 +364,6 @@ void Board::exploreNodes()
 	}
 
 
-	/*
-	//top-left Node
-	if (isNodeInBoard(x - 1, y - 1) == true and nodesBoard2D[y-1][x-1].nodeState != CLOSED and nodesBoard2D[y-1][x-1].nodeType != OBSTACLE) {
-
-		setNodeAttributesWhileOpenning(x, y, x-1, y-1, forwardCost);
-	}
-
-	//top-right Node
-	if (isNodeInBoard(x + 1, y - 1) == true and nodesBoard2D[y - 1][x + 1].nodeState != CLOSED and nodesBoard2D[y - 1][x + 1].nodeType != OBSTACLE) {
-
-		setNodeAttributesWhileOpenning(x, y, x + 1, y - 1, forwardCost);
-	}
-
-	//bottom-left Node
-	if (isNodeInBoard(x - 1, y + 1) == true and nodesBoard2D[y + 1][x - 1].nodeState != CLOSED and nodesBoard2D[y + 1][x - 1].nodeType != OBSTACLE) {
-
-		setNodeAttributesWhileOpenning(x, y, x - 1, y + 1, forwardCost);
-	}
-
-	//bottom-right Node
-	if (isNodeInBoard(x + 1, y + 1) == true and nodesBoard2D[y + 1][x + 1].nodeState != CLOSED and nodesBoard2D[y + 1][x + 1].nodeType != OBSTACLE) {
-
-		setNodeAttributesWhileOpenning(x, y, x + 1, y + 1, forwardCost);
-	}
-	*/
-		
-		
 	//Sprawdzanie czy openNodes.size() == 0 musi byc w tym miejscu poniewaz inaczej(gdyby bylo u gory) 
 	//petla wykonuje sie w nieskonczonosc, poniewaz dla openNodes.size() == 0 inicjuje petle.
 	//Jesli podczas odkrywania wezlow zaden nowy nie zostal dodany do openNodes i openNodes jest zero, algorytm sie konczy
@@ -435,12 +378,9 @@ void Board::exploreNodes()
 
 void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, int selfY, int offset)
 {
-
+	//sprawdzam czy aktualnie odkrywany wezel pokrywa sie z endNode
 	if (nodesBoard2D[selfY][selfX].x == endNodeCords.x and nodesBoard2D[selfY][selfX].y == endNodeCords.y) {
 
-		// funkcja odkrywa kolejne wezly, ktore jeszcze nie zostaly odkryte w tej turze (brak warunku if IS_PATH_FOUND == true)
-		// koniec algorytmu droga znaleziona (openNode pokryl sie z endNode)
-		// w wezle endNode ustawiam jako rodzica masterNode'a (wtedy funckja showPath() moze byc bezparametrowa);
 		IS_PATH_FOUND = true;
 		nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode = &nodesBoard2D[masterY][masterX];
 		showPath();
@@ -454,7 +394,7 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 	
 	//do otwierania wezlow dopuszczam wszystkie wezly ktore nie sa CLOSED oraz nie sa OBSTACLES, 
 	//zeby nie wykluczyc tego wezla przy liczeniu gCost's oraz ewentualnej podmiany rodzica
-	//Dlatego zanim dodam wezel do <vectora> openNodes, musze sprawdzic jego nodeState, aby nie zdublowac wynikow 
+	//Dlatego zanim dodam wezel do <vectora> openNodes, musze sprawdzic jego nodeState, aby nie zdublowac obiektow 
 	if (nodesBoard2D[selfY][selfX].nodeState == NONE) {
 
 		nodesBoard2D[selfY][selfX].nodeState = OPEN;
@@ -466,7 +406,7 @@ void Board::setNodeAttributesWhileOpenning(int masterX, int masterY, int selfX, 
 
 int Board::calcGCost(int masterX, int masterY, int selfX, int selfY, int offset)
 {	
-	//gCost - distance form startNode to endNode
+	//gCost - odleglosc od startNode do aktualnie odkrywanego wezla
 	//gCost dla openNode oblicza sie jako suma: openNode.parentNode.gCost oraz offset
 	//jesli gCost okaze sie mniejszy od aktualnego, to zmien rodzica oraz gCost
 
@@ -481,7 +421,7 @@ int Board::calcGCost(int masterX, int masterY, int selfX, int selfY, int offset)
 	}
 
 	//2) jesli openNode ma rodzica, to rozwaz czy go podmienic:
-	//podmiana zachodzi tylko wtedy gdy droga do openNode przechodza przez masterNode 
+	//podmiana zachodzi tylko wtedy gdy droga do openNode przechodzaca przez masterNode 
 	//jest mniejsza od drogi prowadzacej do openNode przez openNode.parentNode
 	if (cost < nodesBoard2D[selfY][selfX].gCost) {
 
@@ -496,7 +436,7 @@ int Board::calcGCost(int masterX, int masterY, int selfX, int selfY, int offset)
 
 int Board::calcHCost(int selfX, int selfY)
 {	
-	//distance from endNode to startNode
+	//odleglosc od currentNode do endNode
 
 	int cost = 0;
 	int deltaX = abs(selfX - endNodeCords.x);
@@ -525,8 +465,7 @@ bool Board::isNodeInBoard(int x, int y)
 
 void Board::showPath()
 {
-	//funkcja jest bezparametrowa, bo zaczynam wyznaczac droge od endNode'a
-	//poniewaz przypisuje mu jako parentNode wartosc masterNode's ktorego openNode pokryl sie z endNode'em
+	
 	Node* currentPathNode = nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode;
 	Node* tempNode;
 	

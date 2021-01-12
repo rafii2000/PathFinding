@@ -9,17 +9,12 @@
 #include "Node.h"
 
 
-
-
-enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba lepsze
-
 extern btn_id CLICKED_BTN;
-
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
 
-
+enum board_states { ACTIVE = 0, BLOCK };
 
 struct Coordinates {
 	int x;
@@ -29,18 +24,18 @@ struct Coordinates {
 class Board
 {
 
-friend int main(); //zeby to ususnac to isMouseOnBoard i boardState musza byc public
+friend int main(); 
 
 
 private:
 
+	//Window
+	sf::RenderWindow* window;
+
 	//Node's properties
 	int nodeSize;
 	int nodeBorder;
-	int nodeOrigin;
-	int nodesRowAmount;
-	int nodesColumnAmount;
-
+	int nodeOrigin;	
 
 	//Node's colors flags
 	sf::Color LIGHT_GREEN = sf::Color(128, 255, 0, 200);
@@ -56,9 +51,10 @@ private:
 	int rightBorder;
 	int bottomBorder;
 
+	int nodesRowAmount;
+	int nodesColumnAmount;
 	short unsigned boardState = ACTIVE;
 	bool isMouseOnBoard = false;
-	sf::RenderWindow* window;
 	std::vector< std::vector<Node> > nodesBoard2D;
 
 
@@ -75,8 +71,8 @@ private:
 	int diagonalCost = 14;
 	int forwardCost = 10;
 
-	std::vector<Node*> openNodes;  //openNodes
-	std::vector<Node*> closedNodes;  //closedNodes
+	std::vector<Node*> openNodes;
+	std::vector<Node*> closedNodes;
 
 
 
@@ -116,7 +112,6 @@ public:
 	void putObstacles(int mouseX, int mouseY);
 
 	void eraseObstacles(int mouseX, int mouseY);
-
 	
 	void callFunctionOnButtonClick();
 
@@ -146,10 +141,6 @@ public:
 
 	// -------- A* alghoritm -------- //
 	
-
-	
-
-
 
 };
 

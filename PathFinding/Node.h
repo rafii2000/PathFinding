@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "SFML/Graphics.hpp"
+#include "SFML/Window.hpp"
 
 class Node;
 class Board;
@@ -25,11 +26,11 @@ private:
 	int x;
 	int y;
 	int gCost; //distance form starting node to currentNode
-	int hCost; //distance from ending node to Current
+	int hCost; //distance from ending node to currentNode
 	int fCost; //sum gCost + hCost
 	short unsigned nodeState = NONE;
 	short unsigned nodeType;
-	Node* parentNode = nullptr; // 
+	Node* parentNode = nullptr;
 
 	
 	//RectangleShape properties
@@ -85,7 +86,7 @@ public:
 
 	}
 
-
+	
 
 	bool isMouseOn(int mouse_x, int mouse_y);
 
