@@ -26,6 +26,8 @@ class Board
 
 friend int main(); 
 
+public:
+	static short unsigned boardState;
 
 private:
 
@@ -53,7 +55,7 @@ private:
 
 	int nodesRowAmount;
 	int nodesColumnAmount;
-	short unsigned boardState = ACTIVE;
+	/*short unsigned boardState = ACTIVE;*/
 	bool isMouseOnBoard = false;
 	std::vector< std::vector<Node> > nodesBoard2D;
 
@@ -89,6 +91,7 @@ public:
 		this->nodesRowAmount = nodesRowAmt;
 		this->nodesColumnAmount = nodesColAmt;
 
+		validateBorderSize();
 		createBoard();
 		setBoardBordersCords();
 	}
@@ -98,6 +101,8 @@ public:
 	void createBoard();
 
 	void setBoardBordersCords();
+
+	void validateBorderSize();
 
 	void draw();
 

@@ -7,7 +7,9 @@
 #include "Node.h"
 #include "Board.h"
 #include "Button.h"
+#include "Settings.h"
 
+short unsigned Board::boardState = ACTIVE;
 
 //mouse properties
 int mouseX;
@@ -19,8 +21,6 @@ mf MOUSE_STATE = mf::RELEASED;
 btn_id CLICKED_BTN = btn_id::NONE;
 bool CLICK_EVENT = false;
 
-btn_id Button::clicked_button = btn_id::NONE;
-
 
 //drag mode flags
 bool DRAG_MODE = false;
@@ -31,6 +31,7 @@ bool END_NODE_DRAG_MODE = false;
 bool RUN_ALGORITHM = false;
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
+
 
 
 int main()
@@ -51,32 +52,40 @@ int main()
     text.setPosition(sf::Vector2f(79, 20));
    
     // Create a most important part of program - board of nodes
-    Board nodesBoard(window, 30, 1, 58, 27);
-    //Board nodesBoard(window, 15, 1, 116, 54);
+    Board nodesBoard(window, 30, 1, 1000, 1000);   
+
+    Settings settingsWindow(&window, &font);
         
     // Create a buttons
-    Button startButton(1100, 35, 130, 50, &font, "Start",
+    Button startButton(1000, 35, 130, 50, &font, "Start",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), btn_id::START_BTN
     );
 
-    Button breakButton(1300, 35, 130, 50, &font, "Break",
+    Button breakButton(1200, 35, 130, 50, &font, "Break",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), btn_id::BREAK_BTN
     );
     
-    Button pathResetButton(1500, 35, 130, 50, &font, "Path Reset",
+    Button pathResetButton(1400, 35, 130, 50, &font, "Path Reset",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), btn_id::PATH_RESET_BTN
     );
 
-    Button boardResetButton(1700, 35, 130, 50, &font, "Board Reset",
+    Button boardResetButton(1600, 35, 130, 50, &font, "Board Reset",
         sf::Color(170, 170, 170),
         sf::Color(150, 150, 150),
         sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN
+    );
+
+    Button settingsButton(1800, 35, 50, 50, &font, "",
+        sf::Color(170, 170, 170),
+        sf::Color(150, 150, 150),
+        sf::Color(120, 120, 120), btn_id::OPEN_SETTINGS_BTN, "settings2.png"
+                                                        
     );
 
 
@@ -138,15 +147,25 @@ int main()
 
         //check if any buttons is being clicked or hovered
         if (nodesBoard.isMouseOnBoard == false) {
-                        
+            
+            //idle, hover, clicl, set CLICKED_BTN id
             startButton.update(mouseX, mouseY);
             breakButton.update(mouseX, mouseY);
             pathResetButton.update(mouseX, mouseY);
             boardResetButton.update(mouseX, mouseY);
+            settingsButton.update(mouseX, mouseY);
 
             //call proper function
+            //TODO: dodac zmienna opisujaca jakie okno zostalo klikniete 
             nodesBoard.callFunctionOnButtonClick();
-        }      
+        }     
+
+        if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN)
+            settingsWindow.openWindowSettings();
+        else if (CLICKED_BTN == btn_id::CLOSE_SETTINGS_BTN)
+            settingsWindow.closeWindowSettings();
+
+        CLICKED_BTN = btn_id::NONE;
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
@@ -310,13 +329,15 @@ int main()
         
         if (RUN_ALGORITHM == true) {
 
-            sf::sleep(sf::microseconds(10));    //visualization delay
+            //sf::sleep(sf::microseconds(10));    //visualization delay
             nodesBoard.exploreNodes();          //main visualization function
         }
 
         //condition of ending visualization
         if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
             RUN_ALGORITHM = false;
+            IS_PATH_FOUND = false;
+            PATH_NOT_EXIST = false;
             nodesBoard.boardState = ACTIVE;           
         }
        
@@ -334,12 +355,20 @@ int main()
 
         // Draw elements
         window.draw(text);
+        
         nodesBoard.draw();
-
+        
         startButton.render(&window);
         breakButton.render(&window);
         pathResetButton.render(&window);
-        boardResetButton.render(&window);      
+        boardResetButton.render(&window);
+        settingsButton.render(&window);
+
+        settingsWindow.draw();
+
+        
+
+       
 
 
         // Update the window

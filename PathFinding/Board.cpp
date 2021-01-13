@@ -89,6 +89,23 @@ void Board::setBoardBordersCords()
 	bottomBorder = lastNodeY + nodeOrigin;
 }
 
+void Board::validateBorderSize()
+{
+	//caluculate as: n * nodeSize + (n+1)*borderSize
+	
+	int boardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
+	int boardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
+
+	if (boardWidth > board_max_width) {
+		nodesRowAmount = (board_max_width - 1) / (nodeSize + 1);
+	}
+
+	if (boardHeight > board_max_height) {
+		nodesColumnAmount = (board_max_height - 1) / (nodeSize + 1);
+	}
+
+}
+
 void Board::draw()
 {
 	
@@ -204,7 +221,7 @@ void Board::callFunctionOnButtonClick()
 	//after each click on the button, CLICKED_BTN flag has to be cleared, beacause 
 	//each function assign to button can be call only once, otherwise CLICKED_BTN 
 	//would have assign previous value, until next button would be clicked
-	CLICKED_BTN = btn_id::NONE;
+	//CLICKED_BTN = btn_id::NONE;
 
 }
 
@@ -279,6 +296,7 @@ void Board::resetAlgorithmAttributes()
 			}
 		}
 	}	
+
 }
 
 

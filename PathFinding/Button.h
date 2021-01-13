@@ -26,13 +26,14 @@ class Button: sf::RectangleShape
 	
 private:
 
-	static btn_id clicked_button;
-	static int ile;
-
+	
 	btn_id buttonID;
+	std::string texturePath="";
 	short unsigned buttonState;
 
 	sf::RectangleShape shape;
+	sf::Texture texture;
+	sf::Sprite sprite;
 	sf::Font* font;
 	sf::Text text;
 	
@@ -47,7 +48,7 @@ public:
 	//constructor
 	Button(int x, int y, int width, int height, sf::Font* font, std::string text, 
 		sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, 
-		btn_id buttonID);
+		btn_id buttonID, std::string texture_path="");
 
 	
 	//Accesors
@@ -67,7 +68,9 @@ public:
 
 	void onPathResetButtonClick();
 
-	void onBoardResetButtonClick();	
+	void onBoardResetButtonClick();
+
+	void onSettingsButtonClick();
 
 	
 };

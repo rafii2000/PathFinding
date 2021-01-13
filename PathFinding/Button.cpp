@@ -5,7 +5,7 @@
 Button::Button(int x, int y, int width, int height, 
 	sf::Font *font, std::string text, 
 	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
-	btn_id buttonID)
+	btn_id buttonID, std::string texture_path)
 {
 	
 	this->buttonState = BTN_IDLE;
@@ -31,6 +31,17 @@ Button::Button(int x, int y, int width, int height,
 	this->activeColor = activeColor;
 
 	this->shape.setFillColor(this->idleColor);
+
+	
+
+	if (texture_path != ""){
+		this->texturePath = texture_path;
+		if (!texture.loadFromFile(texture_path)) { /*handle error*/}
+
+		sprite.setTexture(texture);
+		sprite.setPosition(x+width/2,y+height/2);
+		sprite.setOrigin(texture.getSize().x/2, texture.getSize().y/2);		
+	}
 
 }
 
@@ -97,6 +108,9 @@ void Button::render(sf::RenderWindow* window)
 {
 	window->draw(this->shape);
 	window->draw(this->text);
+	if (texturePath != "")
+		window->draw(this->sprite);		
+	
 }
 
 
@@ -117,9 +131,17 @@ void Button::callButtonFunction()
 	else if (buttonID == btn_id::PATH_RESET_BTN) {
 		onPathResetButtonClick();
 	}
+	else if (buttonID == btn_id::OPEN_SETTINGS_BTN) {
+		onSettingsButtonClick();
+	}
+	else if (buttonID == btn_id::CLOSE_SETTINGS_BTN) {
+		CLICKED_BTN = btn_id::CLOSE_SETTINGS_BTN;
+	}
 }
 
 //BUTTONS FUNCTION
+//TODO: do zmiany wystarczy tylko funkcja callButtonFunction() i wniej ustawiac
+// zmiennja CLICKED_BTN
 void Button::onStartButtonClick()
 {
 	//change CLICKED_BTN flag
@@ -142,6 +164,12 @@ void Button::onPathResetButtonClick()
 {
 	//change CLICKED_BTN flag
 	CLICKED_BTN = btn_id::PATH_RESET_BTN;
+}
+
+void Button::onSettingsButtonClick()
+{
+	//change CLICKED_BTN flag
+	CLICKED_BTN = btn_id::OPEN_SETTINGS_BTN;
 }
 
 
