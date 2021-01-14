@@ -2,9 +2,10 @@
 
 
 //constructor
-Button::Button(int x, int y, int width, int height, 
-	sf::Font *font, std::string text, 
-	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
+
+
+Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize, 
+	std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
 	btn_id buttonID, std::string texture_path)
 {
 	
@@ -17,13 +18,14 @@ Button::Button(int x, int y, int width, int height,
 	this->shape.setOutlineColor(sf::Color(70, 70, 70));
 	
 	this->font = font;
+	this->fontSize = fontSize;
 	this->text.setFont(*this->font);
 	this->text.setString(text);
 	this->text.setFillColor(sf::Color(50, 40, 50));
-	this->text.setCharacterSize(20);
+	this->text.setCharacterSize(fontSize);
 	this->text.setPosition(
 		this->shape.getPosition().x + (this->shape.getGlobalBounds().width / 2) - this->text.getGlobalBounds().width / 2,
-		this->shape.getPosition().y + (this->shape.getGlobalBounds().height / 2) - this->text.getGlobalBounds().height / 2 -20/2
+		this->shape.getPosition().y + (this->shape.getGlobalBounds().height / 2) - this->text.getGlobalBounds().height / 2 -fontSize/2
 	);
 
 	this->idleColor = idleColor;
@@ -78,7 +80,9 @@ void Button::update(int mouseX, int mouseY)
 	
 			std::cout << "CLICK_EVENT" << std::endl;
 			CLICK_EVENT = false;
-			callButtonFunction();
+
+			CLICKED_BTN = buttonID; //tym sposobem pozbywam sie ogroma zbednych funkcji
+			//callButtonFunction();
 		}
 	}
 

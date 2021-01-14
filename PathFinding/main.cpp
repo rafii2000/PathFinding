@@ -9,7 +9,8 @@
 #include "Button.h"
 #include "Settings.h"
 
-short unsigned Board::boardState = ACTIVE;
+
+bool Settings::isOpen = false;
 
 //mouse properties
 int mouseX;
@@ -34,6 +35,8 @@ bool PATH_NOT_EXIST = false;
 
 
 
+
+
 int main()
 {
 
@@ -41,8 +44,7 @@ int main()
 
     // Create the main window    
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height), "SFML PathFinding");  
-    window.setPosition(sf::Vector2i(-8, 0));
+    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(140);
 
     // Create a graphical text to display
@@ -53,41 +55,14 @@ int main()
    
     // Create a most important part of program - board of nodes
     Board nodesBoard(window, 30, 1, 1000, 1000);   
-
-    Settings settingsWindow(&window, &font);
+    Settings settingsWindow(&window, &nodesBoard, &font);
         
     // Create a buttons
-    Button startButton(1000, 35, 130, 50, &font, "Start",
-        sf::Color(170, 170, 170),
-        sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), btn_id::START_BTN
-    );
-
-    Button breakButton(1200, 35, 130, 50, &font, "Break",
-        sf::Color(170, 170, 170),
-        sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), btn_id::BREAK_BTN
-    );
-    
-    Button pathResetButton(1400, 35, 130, 50, &font, "Path Reset",
-        sf::Color(170, 170, 170),
-        sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), btn_id::PATH_RESET_BTN
-    );
-
-    Button boardResetButton(1600, 35, 130, 50, &font, "Board Reset",
-        sf::Color(170, 170, 170),
-        sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN
-    );
-
-    Button settingsButton(1800, 35, 50, 50, &font, "",
-        sf::Color(170, 170, 170),
-        sf::Color(150, 150, 150),
-        sf::Color(120, 120, 120), btn_id::OPEN_SETTINGS_BTN, "settings2.png"
-                                                        
-    );
-
+    Button startButton(1000, 35, 130, 50, &font, 20, "Start", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::START_BTN);
+    Button breakButton(1200, 35, 130, 50, &font, 20, "Break", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::BREAK_BTN);
+    Button pathResetButton(1400, 35, 130, 50, &font, 20, "Path Reset", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::PATH_RESET_BTN);
+    Button boardResetButton(1600, 35, 130, 50, &font, 20, "Board Reset", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN);
+    Button openSettingsButton(1800, 35, 50, 50, &font, 20, "", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::OPEN_SETTINGS_BTN, "settings2.png");
 
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
     
@@ -98,7 +73,7 @@ int main()
     // Start the game loop
     while (window.isOpen())
     {
-
+        
         // ------------ EVENT LOOP ------------ //
         // Process events
         sf::Event event;
@@ -125,7 +100,6 @@ int main()
                 CLICK_EVENT = true;
             }
             
-
             if (event.type == sf::Event::MouseMoved) {        
                 
                 //set mouse position
@@ -136,6 +110,26 @@ int main()
                 nodesBoard.isMouseOnBoard = nodesBoard.checkIsMouseOnBoard(mouseX, mouseY);
 
             }    
+
+            //Keyboard events
+            if (event.type == sf::Event::TextEntered)
+            {
+
+                //TODO: add ptr to object and coll function from pointer:
+                // settingWindow.textboxPTR->writeText(charU)
+                int charUnicode = event.text.unicode;
+
+                if (charUnicode < 128) {
+
+                    settingsWindow.nodesInRowTextbox.writeText(charUnicode);
+                    settingsWindow.nodesInColumnTextbox.writeText(charUnicode);
+                    settingsWindow.nodeSizeTextbox.writeText(charUnicode);
+                    settingsWindow.filePathSaveTextbox.writeText(charUnicode);
+                    settingsWindow.filePathLoadTextbox.writeText(charUnicode);
+                }
+                    
+                     
+            }
         }
         // ------------ EVENT LOOP ------------ //
                                                
@@ -148,24 +142,22 @@ int main()
         //check if any buttons is being clicked or hovered
         if (nodesBoard.isMouseOnBoard == false) {
             
-            //idle, hover, clicl, set CLICKED_BTN id
-            startButton.update(mouseX, mouseY);
-            breakButton.update(mouseX, mouseY);
-            pathResetButton.update(mouseX, mouseY);
-            boardResetButton.update(mouseX, mouseY);
-            settingsButton.update(mouseX, mouseY);
+            //idle, hover, click, set CLICKED_BTN id
+            if (Settings::isOpen == false) {
+                startButton.update(mouseX, mouseY);
+                breakButton.update(mouseX, mouseY);
+                pathResetButton.update(mouseX, mouseY);
+                boardResetButton.update(mouseX, mouseY);
+                openSettingsButton.update(mouseX, mouseY);
 
-            //call proper function
-            //TODO: dodac zmienna opisujaca jakie okno zostalo klikniete 
-            nodesBoard.callFunctionOnButtonClick();
+                //call proper function
+                nodesBoard.callFunctionOnButtonClick();
+            }                   
         }     
 
-        if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN)
-            settingsWindow.openWindowSettings();
-        else if (CLICKED_BTN == btn_id::CLOSE_SETTINGS_BTN)
-            settingsWindow.closeWindowSettings();
-
-        CLICKED_BTN = btn_id::NONE;
+        if (Settings::isOpen == true) {
+            settingsWindow.callFunctionOnButtonClick();
+        }
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
@@ -351,6 +343,7 @@ int main()
         // ------------ RENDERING FUNCTIONS ------------ //
         // Clear screen
         window.clear(sf::Color(170, 170, 170));
+        window.setPosition(sf::Vector2i(-8, 0));
 
 
         // Draw elements
@@ -362,7 +355,7 @@ int main()
         breakButton.render(&window);
         pathResetButton.render(&window);
         boardResetButton.render(&window);
-        settingsButton.render(&window);
+        openSettingsButton.render(&window);
 
         settingsWindow.draw();
 
@@ -374,6 +367,7 @@ int main()
         // Update the window
         window.display();
 
+       
         // ------------ RENDERING FUNCTIONS ------------ //
         
 

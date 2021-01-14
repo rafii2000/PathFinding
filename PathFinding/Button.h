@@ -30,6 +30,7 @@ private:
 	btn_id buttonID;
 	std::string texturePath="";
 	short unsigned buttonState;
+	int fontSize;
 
 	sf::RectangleShape shape;
 	sf::Texture texture;
@@ -46,7 +47,7 @@ private:
 public:
 
 	//constructor
-	Button(int x, int y, int width, int height, sf::Font* font, std::string text, 
+	Button(int x, int y, int width, int height, sf::Font* font, int fontSize, std::string text,
 		sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, 
 		btn_id buttonID, std::string texture_path="");
 

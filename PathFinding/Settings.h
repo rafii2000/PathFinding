@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "Board.h"
 #include "Button.h"
+#include "Textbox.h"
 
 
 extern int mouseX;
@@ -14,48 +15,73 @@ extern int mouseY;
 class Settings
 {
 
+friend int main();
+
+public:
+	static bool isOpen;
+
 private:
 
-	bool isOpen = false;
+	
+	int screenX = 1300;
+	int screenY = 0;
+	int width = 620;
+	int height = 1080;
 
 	
+	Board* board;
 	sf::RenderWindow *window;
 	sf::RectangleShape settings_window;
+
 	sf::Text windowTitle;
+	sf::Text nodesInRowLabel;
+	sf::Text nodesInColLabel;
+	sf::Text nodesSizeLable;
+	int labelFontSize = 30;
+
+	Textbox nodesInRowTextbox;
+	Textbox nodesInColumnTextbox;
+	Textbox nodeSizeTextbox;
+	Textbox filePathLoadTextbox;
+	Textbox filePathSaveTextbox;
 
 	Button closeSettingsButton;
+	Button saveBoardButtons;
+	Button loadBoardButton;
+	Button applyBoardResizeButton;
+
+	
 	
 
 
 
 public:
-	Settings(sf::RenderWindow* window, sf::Font* font) :
-		closeSettingsButton(1525, 850, 200, 50, font, "Close",
-			sf::Color(170, 170, 170),
-			sf::Color(150, 150, 150),
-			sf::Color(120, 120, 120), btn_id::CLOSE_SETTINGS_BTN)
-	{
+	Settings(sf::RenderWindow* window, Board* board, sf::Font* font);
 
-		this->window = window;
-
-		settings_window.setFillColor(sf::Color(51, 51, 51, 255));
-		settings_window.setPosition(1300, 0);
-		settings_window.setSize({ 620, 1080 });
-
-		
-		windowTitle.setString("Settings");
-		windowTitle.setPosition(sf::Vector2f(1300+225,40));
-		windowTitle.setFont(*font);
-		windowTitle.setCharacterSize(50);
-	}
-
-
-	void openWindowSettings();
-
-	void closeWindowSettings();
 
 	void updateButtons();
 
 	void draw();
+
+
+
+	void callFunctionOnButtonClick();
+
+	void closeWindowSettings();
+
+	void onApplyButtonClick();
+
+	bool newBoardSizeValidation(int row, int col, int size);
+
+	void onSaveBoardButtonClick();
+
+	void onLoadBoardButtonClick();
+
+	
+
+
+	int str_to_int(std::string str);
+
+	std::string int_to_str(int number);
 };
 

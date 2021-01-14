@@ -18,7 +18,7 @@ void Board::createBoard()
 	std::cout << nodesBoardWidth << " " << nodesBoardHeight << std::endl;
 
 	margin_x = (window->getSize().x - nodesBoardWidth) / 2 + (nodeSize / 2);
-	margin_y = (window->getSize().y - nodesBoardHeight) / 2 + (nodeSize / 2);
+	margin_y = (window->getSize().y - nodesBoardHeight) / 2 + (nodeSize / 2) + board2DMargin;;
 
 	std::cout << "margins:" << margin_x << " " << margin_y << std::endl;
 
@@ -89,7 +89,7 @@ void Board::setBoardBordersCords()
 	bottomBorder = lastNodeY + nodeOrigin;
 }
 
-void Board::validateBorderSize()
+void Board::validateBoardSize()
 {
 	//caluculate as: n * nodeSize + (n+1)*borderSize
 	
@@ -185,6 +185,7 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 
 
 
+// -------- BUTTONS FUNCTION -------- //
 
 void Board::callFunctionOnButtonClick()
 {
@@ -217,11 +218,16 @@ void Board::callFunctionOnButtonClick()
 		if (boardState == ACTIVE)
 			clearPath();
 	}
+	else if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN) {
+		//robi to samo co openWindowSettings() w Settings class
+		Settings::isOpen = true;
+		boardState = BLOCK;
+	}
 
 	//after each click on the button, CLICKED_BTN flag has to be cleared, beacause 
 	//each function assign to button can be call only once, otherwise CLICKED_BTN 
 	//would have assign previous value, until next button would be clicked
-	//CLICKED_BTN = btn_id::NONE;
+	CLICKED_BTN = btn_id::NONE;
 
 }
 
@@ -299,6 +305,8 @@ void Board::resetAlgorithmAttributes()
 
 }
 
+// -------- BUTTONS FUNCTION -------- //
+
 
 
 
@@ -307,7 +315,6 @@ void Board::resetAlgorithmAttributes()
 
 
 // -------- A* ALGORITHM LOGIC -------- //
-
 
 void Board::exploreNodes()
 {
@@ -469,7 +476,6 @@ int Board::calcHCost(int selfX, int selfY)
 }
 
 
-
 bool Board::isNodeInBoard(int x, int y)
 {
 	
@@ -497,6 +503,146 @@ void Board::showPath()
 }
 
 // -------- A* ALGORITHM LOGIC -------- //
+
+
+
+
+
+
+
+
+
+// -------- SETTINGS PANEL -------- //
+
+void Board::createBoardFromFile(std::string fileName)
+{
+
+	std::ifstream file(fileName);
+
+	if (file) {
+		std::cout << "File loaded: " << fileName << std::endl;
+		 
+		//new border values read from file
+		int newNodeRowAmt = 0;
+		int newNodeColAmt = 0;
+		int newNodeSize = 0;
+
+		//auxiliary values
+		std::string line;
+		int lineIndex = 1;
+		int operations = 1;
+
+		//indexe for nested loop
+		int col;
+
+		//values to center border
+		int margin_x;
+		int margin_y;
+
+		//nodes coordinates
+		int screenX; 
+		int screenY;
+
+		nodesBoard2D.clear();
+
+		//scan file and find board size
+		while (getline(file, line)) {
+
+			/*std::cout << line.length() << std::endl;*/
+			//break if last line is "\n"
+			if (line.length() == 0 and lineIndex > 4) break;
+
+			switch (lineIndex) {
+
+				case 1: newNodeRowAmt = atoi(line.c_str()); operations++;	break;
+				case 2: newNodeColAmt = atoi(line.c_str()); operations++;	break;
+				case 3: newNodeSize = atoi(line.c_str()); operations++;		break;
+				case 4: {
+					
+					//initialize new values
+					nodesRowAmount = newNodeRowAmt;
+					nodesColumnAmount = newNodeColAmt;
+					nodeSize = newNodeSize;
+					nodeOrigin = newNodeSize / 2;
+
+					//center nodesBoard on the screen, means find position for the first node
+					int nodesBoardWidth = (nodesRowAmount * nodeSize) + ((nodesRowAmount + 1) * nodeBorder);
+					int nodesBoardHeight = (nodesColumnAmount * nodeSize) + ((nodesColumnAmount + 1) * nodeBorder);
+
+					margin_x = (window->getSize().x - nodesBoardWidth) / 2 + (nodeSize / 2);
+					margin_y = (window->getSize().y - nodesBoardHeight) / 2 + (nodeSize / 2) + board2DMargin;
+
+					screenX = margin_x; //first Node X position
+					screenY = margin_y; //first Node Y position
+
+					operations++;					
+
+				} break;
+					  
+					
+				default: {
+
+					
+					std::vector<Node> nodesRow;  //is this a good practice?
+					
+					col = lineIndex - operations;
+					for (int row = 0;  row < line.length(); row++) {
+
+						std::string readNodeType = line.substr(row, 1);
+
+						if (readNodeType == "S") {
+							//add startNode to the nodesBoard
+							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, START_NODE));
+							startNodeCords.x = row;
+							startNodeCords.y = col;
+
+						}
+						else if (readNodeType == "E") {
+							//add endNode to the nodesBoard
+							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, END_NODE));
+							endNodeCords.x = row;
+							endNodeCords.y = col;
+						}
+						else if (readNodeType == "O") {
+							//add endNode to the nodesBoard
+							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, WALKABLE));						
+						}
+						else if (readNodeType == "X") {
+							//add endNode to the nodesBoard
+							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, OBSTACLE));						
+						}						
+
+						screenX += nodeSize + nodeBorder;
+					}
+
+					screenX = margin_x;
+					screenY += nodeSize + nodeBorder;
+
+					nodesBoard2D.push_back(nodesRow);
+					
+				}break;
+			}
+
+
+			lineIndex++;
+			
+		}
+
+		setBoardBordersCords();		
+
+	}
+	else {
+		std::cout << "File not found: "<< fileName << std::endl;
+	}
+
+	file.close();
+
+	
+
+}
+
+
+// -------- SETTINGS PANEL -------- //
 
 
 

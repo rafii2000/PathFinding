@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "SFML/Graphics.hpp"
@@ -7,6 +8,7 @@
 
 #include "Constants.h"
 #include "Node.h"
+#include "Settings.h"
 
 
 extern btn_id CLICKED_BTN;
@@ -21,14 +23,16 @@ struct Coordinates {
 	int y;
 };
 
+class Settings;
+
 class Board
 {
 
-friend int main(); 
+friend int main();
+friend class Settings;
 
-public:
-	static short unsigned boardState;
 
+	
 private:
 
 	//Window
@@ -55,7 +59,7 @@ private:
 
 	int nodesRowAmount;
 	int nodesColumnAmount;
-	/*short unsigned boardState = ACTIVE;*/
+	short unsigned boardState = ACTIVE;
 	bool isMouseOnBoard = false;
 	std::vector< std::vector<Node> > nodesBoard2D;
 
@@ -91,7 +95,7 @@ public:
 		this->nodesRowAmount = nodesRowAmt;
 		this->nodesColumnAmount = nodesColAmt;
 
-		validateBorderSize();
+		validateBoardSize();
 		createBoard();
 		setBoardBordersCords();
 	}
@@ -102,7 +106,7 @@ public:
 
 	void setBoardBordersCords();
 
-	void validateBorderSize();
+	void validateBoardSize();
 
 	void draw();
 
@@ -145,6 +149,16 @@ public:
 	bool isNodeInBoard(int x, int y);
 
 	// -------- A* alghoritm -------- //
+
+
+
+
+
+	// -------- Settings Panel -------- //
+
+	void createBoardFromFile(std::string fileName);
+
+	// -------- Settings Panel -------- //
 	
 
 };

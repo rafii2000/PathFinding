@@ -17,6 +17,7 @@ class Node: sf::RectangleShape
 {
 
 friend class Board;
+friend class Settings;
 friend int main();	//required in drag_mode
 
 
@@ -82,6 +83,14 @@ public:
 		if (nodeType == END_NODE) {
 			std::cout << "endNode" << std::endl;
 			node.setFillColor(sf::Color::Red);
+		}
+
+		if (nodeType == WALKABLE) {			
+			node.setFillColor(WALKABLE_COLOR);			
+		}
+
+		if (nodeType == OBSTACLE) {
+			node.setFillColor(OBSTACLE_COLOR);
 		}
 
 	}
