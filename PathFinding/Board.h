@@ -10,6 +10,8 @@
 #include "Node.h"
 #include "Settings.h"
 
+class Layout;
+
 
 extern btn_id CLICKED_BTN;
 extern bool RUN_ALGORITHM;
@@ -94,19 +96,22 @@ public:
 		this->nodeBorder = nodeBorder;
 		this->nodesRowAmount = nodesRowAmt;
 		this->nodesColumnAmount = nodesColAmt;
-
-		validateBoardSize();
+		
+		calculateBoardSize();
+		//validateBoardSize();
 		createBoard();
 		setBoardBordersCords();
 	}
 
 
 
+	void calculateBoardSize();
+
 	void createBoard();
 
 	void setBoardBordersCords();
 
-	void validateBoardSize();
+	/*void validateBoardSize();*/
 
 	void draw();
 
@@ -132,6 +137,8 @@ public:
 
 	void resetAlgorithmAttributes();
 
+	void generateMaze();
+
 
 
 	// -------- A* alghoritm -------- //
@@ -153,12 +160,22 @@ public:
 
 
 
-
 	// -------- Settings Panel -------- //
 
 	void createBoardFromFile(std::string fileName);
 
 	// -------- Settings Panel -------- //
+
+
+
+	// ---------------- Maze ---------------- //
+	
+	/*void generateMaze();*/
+
+	// ---------------- Maze ---------------- //
+
+
+	
 	
 
 };

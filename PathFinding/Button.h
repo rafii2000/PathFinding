@@ -10,6 +10,7 @@
 extern mf MOUSE_STATE;
 extern btn_id CLICKED_BTN;
 extern bool CLICK_EVENT;
+extern bool RUN_ALGORITHM;
 
 
 //Opis dzialania przyciskow:
@@ -19,7 +20,7 @@ extern bool CLICK_EVENT;
 //BOARD_RESET - przywraca atrybuity domyslne wszystkim Node'om, z wyj¹tkiem startNode  i endNode
 
 
-enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_ACTIVE };
+enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_PRESSED };
 
 class Button: sf::RectangleShape
 {
@@ -59,20 +60,6 @@ public:
 	void update(int mouseX, int mouseY);
 	
 	void render(sf::RenderWindow* window);
-
-	void callButtonFunction();
-
-	//Buttons functions 
-	void onStartButtonClick();
-
-	void onBreakButtonClick();
-
-	void onPathResetButtonClick();
-
-	void onBoardResetButtonClick();
-
-	void onSettingsButtonClick();
-
 	
 };
 

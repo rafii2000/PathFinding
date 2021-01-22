@@ -7,6 +7,7 @@
 #include "Board.h"
 #include "Button.h"
 #include "Textbox.h"
+#include "Layout.h"
 
 
 extern int mouseX;
@@ -19,19 +20,21 @@ friend int main();
 
 public:
 	static bool isOpen;
+	
 
 private:
 
 	
-	int screenX = 1300;
-	int screenY = 0;
-	int width = 620;
-	int height = 1080;
+	const int width = 620; //const
+	const int height; //max display_height
+	const int screenX; //screenX = display_width - settings_width;
+	const int screenY = 0; //const
 
 	
 	Board* board;
 	sf::RenderWindow *window;
-	sf::RectangleShape settings_window;
+	sf::RectangleShape settingsWindow;
+	sf::RectangleShape overlapRect;
 
 	sf::Text windowTitle;
 	sf::Text nodesInRowLabel;

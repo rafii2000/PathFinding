@@ -12,16 +12,18 @@ bool Textbox::isMouseOn()
 
 void Textbox::update()
 {
+	
 	if (CLICK_EVENT == true) {
 
 		if (isMouseOn()) {
 
 			hasFocus = true;
+			activeTextboxPtr = this;
 			shape.setOutlineColor(sf::Color::Yellow);
 			text = "";
 		}
 		else {
-			hasFocus = false;
+			hasFocus = false;			
 			shape.setOutlineColor(sf::Color::White);
 		}
 

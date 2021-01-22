@@ -51,7 +51,7 @@ Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize
 
 const bool Button::isPressed()
 {
-	if (this->buttonState == BTN_ACTIVE)
+	if (this->buttonState == BTN_PRESSED)
 		return true; 
 	
 	return false;
@@ -60,6 +60,11 @@ const bool Button::isPressed()
 void Button::update(int mouseX, int mouseY)
 {
 	/*Update the booleans for hover and pressed*/
+
+	//bad solution - exclusion update some buttons
+	if (RUN_ALGORITHM == true)
+		if (buttonID != btn_id::START_BTN and buttonID != btn_id::BREAK_BTN)
+			return;
 
 	//Idle
 	this->buttonState = BTN_IDLE;
@@ -72,7 +77,7 @@ void Button::update(int mouseX, int mouseY)
 		//Pressed
 		if (MOUSE_STATE == mf::LEFT_PRESSED) {
 
-			this->buttonState = BTN_ACTIVE;
+			this->buttonState = BTN_PRESSED;
 
 		}
 		//Click (on button released)
@@ -96,7 +101,7 @@ void Button::update(int mouseX, int mouseY)
 		this->shape.setFillColor(this->hoverColor);
 		break;
 
-	case BTN_ACTIVE:
+	case BTN_PRESSED:
 		this->shape.setFillColor(this->activeColor);
 		break;
 
@@ -116,73 +121,6 @@ void Button::render(sf::RenderWindow* window)
 		window->draw(this->sprite);		
 	
 }
-
-
-
-void Button::callButtonFunction()
-{
-	//change the current clicked button flag
-
-	if (buttonID == btn_id::START_BTN) {
-		onStartButtonClick();
-	}
-	else if (buttonID == btn_id::BREAK_BTN) {
-		onBreakButtonClick();
-	}
-	else if (buttonID == btn_id::BOARD_RESET_BTN) {
-		onBoardResetButtonClick();
-	}
-	else if (buttonID == btn_id::PATH_RESET_BTN) {
-		onPathResetButtonClick();
-	}
-	else if (buttonID == btn_id::OPEN_SETTINGS_BTN) {
-		onSettingsButtonClick();
-	}
-	else if (buttonID == btn_id::CLOSE_SETTINGS_BTN) {
-		CLICKED_BTN = btn_id::CLOSE_SETTINGS_BTN;
-	}
-}
-
-//BUTTONS FUNCTION
-//TODO: do zmiany wystarczy tylko funkcja callButtonFunction() i wniej ustawiac
-// zmiennja CLICKED_BTN
-void Button::onStartButtonClick()
-{
-	//change CLICKED_BTN flag
-	CLICKED_BTN = btn_id::START_BTN;
-}
-
-void Button::onBreakButtonClick()
-{
-	//change CLICKED_BTN flag
-	CLICKED_BTN = btn_id::BREAK_BTN;
-}
-
-void Button::onBoardResetButtonClick()
-{
-	//change CLICKED_BTN flag
-	CLICKED_BTN = btn_id::BOARD_RESET_BTN;
-}
-
-void Button::onPathResetButtonClick()
-{
-	//change CLICKED_BTN flag
-	CLICKED_BTN = btn_id::PATH_RESET_BTN;
-}
-
-void Button::onSettingsButtonClick()
-{
-	//change CLICKED_BTN flag
-	CLICKED_BTN = btn_id::OPEN_SETTINGS_BTN;
-}
-
-
-
-
-
-
-
-
 
 
 

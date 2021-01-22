@@ -8,9 +8,15 @@
 #include "Board.h"
 #include "Button.h"
 #include "Settings.h"
+#include "Layout.h"
 
 
+
+//statics
 bool Settings::isOpen = false;
+Textbox* Textbox::activeTextboxPtr = nullptr;
+
+
 
 //mouse properties
 int mouseX;
@@ -33,9 +39,7 @@ bool RUN_ALGORITHM = false;
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
 
-
-
-
+void detectResolution(int screenWidth, int screenHeight);
 
 int main()
 {
@@ -44,26 +48,43 @@ int main()
 
     // Create the main window    
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
-    window.setFramerateLimit(140);
+    int screenWidth = desktopMode.width;
+    int screenHeight = desktopMode.height;
+    std::cout << screenWidth << screenHeight << std::endl;
+    std::cout << desktopMode.width << desktopMode.height << std::endl;
+    //sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
+    //sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height - 40), "SFML PathFinding", sf::Style::Fullscreen);
+    sf::RenderWindow window(sf::VideoMode(1364, 768), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
+    //window.setFramerateLimit(140);
+
+    float fps;
+    sf::Clock clock = sf::Clock::Clock();
+    sf::Time previousTime = clock.getElapsedTime();
+    sf::Time currentTime;
+
+    detectResolution(window.getSize().x, window.getSize().y);
 
     // Create a graphical text to display
     sf::Font font;
     if (!font.loadFromFile("arial_narrow_7.ttf")) return EXIT_FAILURE;
-    sf::Text text("SFML PathFinding visualization", font, 50);
-    text.setPosition(sf::Vector2f(79, 20));
+    sf::Text appTitle("SFML PathFinding visualization", font, Layout::APP_TITLE_LABLE_FONT_SIZE);
+    appTitle.setPosition(sf::Vector2f(Layout::APP_TITLE_LABLE_X, Layout::APP_TITLE_LABLE_Y));
+    sf::Text appResultLabel("Path between points doesn't exist", font, Layout::APP_RESULT_LABLE_FONT_SIZE);
+    appResultLabel.setPosition(sf::Vector2f(Layout::APP_RESULT_LABLE_X, Layout::APP_RESULT_LABLE_Y));
+    appResultLabel.setFillColor(sf::Color::Transparent);
    
     // Create a most important part of program - board of nodes
     Board nodesBoard(window, 30, 1, 1000, 1000);   
     Settings settingsWindow(&window, &nodesBoard, &font);
-        
-    // Create a buttons
-    Button startButton(1000, 35, 130, 50, &font, 20, "Start", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::START_BTN);
-    Button breakButton(1200, 35, 130, 50, &font, 20, "Break", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::BREAK_BTN);
-    Button pathResetButton(1400, 35, 130, 50, &font, 20, "Path Reset", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::PATH_RESET_BTN);
-    Button boardResetButton(1600, 35, 130, 50, &font, 20, "Board Reset", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::BOARD_RESET_BTN);
-    Button openSettingsButton(1800, 35, 50, 50, &font, 20, "", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::OPEN_SETTINGS_BTN, "settings2.png");
-
+            
+    // Create a buttons    
+    Button startButton(Layout::START_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH, Layout::MW_TOP_BTNS_HEIGHT, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "Start",     Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::START_BTN);
+    Button breakButton(Layout::BREAK_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH, Layout::MW_TOP_BTNS_HEIGHT, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "Break",           Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::BREAK_BTN);
+    Button pathResetButton(Layout::PATH_RESET_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH, Layout::MW_TOP_BTNS_HEIGHT, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "Path Reset",  Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::PATH_RESET_BTN);
+    Button boardResetButton(Layout::BOARD_RESET_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH, Layout::MW_TOP_BTNS_HEIGHT, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "Board Reset", Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::BOARD_RESET_BTN);
+    Button generateMaze(Layout::GENERATE_MAZE_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH_S, Layout::MW_TOP_BTNS_HEIGHT_S, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "",                Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::GENERATE_MAZE_BTN, "maze2.png");
+    Button openSettingsButton(Layout::OPEN_SETTINGS_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH_S, Layout::MW_TOP_BTNS_HEIGHT_S, &font, Layout::MW_TOP_BTNS_FONT_SIZE, "",          Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::OPEN_SETTINGS_BTN, "settings2.png");
+   
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
     
 
@@ -73,87 +94,97 @@ int main()
     // Start the game loop
     while (window.isOpen())
     {
-        
+
         // ------------ EVENT LOOP ------------ //
         // Process events
         sf::Event event;
         while (window.pollEvent(event))
         {
             // Close window: exit
-            if (event.type == sf::Event::Closed)
-                window.close();        
+            if (event.type == sf::Event::Closed) {
+                std::cout << "click close" << std::endl;
+                window.close();
+            }
+               
+            else if (event.key.code == sf::Keyboard::Escape) {
+                std::cout << "escape close" << std::endl;
+                window.close();
+            }
 
+                         
             //Mouse events
             CLICK_EVENT = false;
             if (event.type == sf::Event::MouseButtonPressed) {
-                
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {                    
+
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     MOUSE_STATE = mf::LEFT_PRESSED;
                 }
 
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {                    
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
                     MOUSE_STATE = mf::RIGHT_PRESSED;
-                }               
+                }
             }
-            else if (event.type == sf::Event::MouseButtonReleased) {                         
+            else if (event.type == sf::Event::MouseButtonReleased) {
                 MOUSE_STATE = mf::RELEASED;
-                CLICK_EVENT = true;
+                CLICK_EVENT = true;              
+                appResultLabel.setFillColor(sf::Color::Transparent);
             }
-            
-            if (event.type == sf::Event::MouseMoved) {        
-                
+
+            if (event.type == sf::Event::MouseMoved) {
+
                 //set mouse position
                 mouseX = sf::Mouse::getPosition(window).x;
                 mouseY = sf::Mouse::getPosition(window).y;
-                
+
                 //check is mouse on board 
                 nodesBoard.isMouseOnBoard = nodesBoard.checkIsMouseOnBoard(mouseX, mouseY);
 
-            }    
+            }
 
             //Keyboard events
             if (event.type == sf::Event::TextEntered)
             {
 
-                //TODO: add ptr to object and coll function from pointer:
-                // settingWindow.textboxPTR->writeText(charU)
                 int charUnicode = event.text.unicode;
 
                 if (charUnicode < 128) {
 
-                    settingsWindow.nodesInRowTextbox.writeText(charUnicode);
-                    settingsWindow.nodesInColumnTextbox.writeText(charUnicode);
-                    settingsWindow.nodeSizeTextbox.writeText(charUnicode);
-                    settingsWindow.filePathSaveTextbox.writeText(charUnicode);
-                    settingsWindow.filePathLoadTextbox.writeText(charUnicode);
+                    //activeTextboxPtr ma zawsze wskaznik na ostatni uzyty Textbox, ale poniewaz ten 
+                    //ostatniTextbox ma hasFocus=false to funkcja writeText() nic nie wstawi
+                    if(Textbox::activeTextboxPtr != nullptr)
+                        Textbox::activeTextboxPtr->writeText(charUnicode);                 
+                  
                 }
-                    
-                     
+
+
             }
         }
         // ------------ EVENT LOOP ------------ //
-                                               
+
 
 
 
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
-        //check if any buttons is being clicked or hovered
-        if (nodesBoard.isMouseOnBoard == false) {
-            
-            //idle, hover, click, set CLICKED_BTN id
-            if (Settings::isOpen == false) {
-                startButton.update(mouseX, mouseY);
-                breakButton.update(mouseX, mouseY);
-                pathResetButton.update(mouseX, mouseY);
-                boardResetButton.update(mouseX, mouseY);
-                openSettingsButton.update(mouseX, mouseY);
+        
+        //dla wydajnosci bylo:
+        //if (nodesBoard.isMouseOnBoard == false)
+        //ale to psuje update przycisku openSettingsButton();
 
-                //call proper function
-                nodesBoard.callFunctionOnButtonClick();
-            }                   
-        }     
+         //idle, hover, click, set CLICKED_BTN id
+        if (Settings::isOpen == false) {
+           
+            startButton.update(mouseX, mouseY);
+            breakButton.update(mouseX, mouseY);
+            pathResetButton.update(mouseX, mouseY);
+            boardResetButton.update(mouseX, mouseY);
+            openSettingsButton.update(mouseX, mouseY);
+            generateMaze.update(mouseX, mouseY);
+
+            //call proper function
+            nodesBoard.callFunctionOnButtonClick();
+        }
 
         if (Settings::isOpen == true) {
             settingsWindow.callFunctionOnButtonClick();
@@ -327,11 +358,18 @@ int main()
 
         //condition of ending visualization
         if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
+
+            if (PATH_NOT_EXIST)
+                appResultLabel.setFillColor(sf::Color(50, 50, 50));
+
             RUN_ALGORITHM = false;
             IS_PATH_FOUND = false;
             PATH_NOT_EXIST = false;
             nodesBoard.boardState = ACTIVE;           
         }
+
+       
+        
        
         // ------------ A* ALGHORITHM ------------ //
 
@@ -347,22 +385,22 @@ int main()
 
 
         // Draw elements
-        window.draw(text);
+        window.draw(appTitle);
+        window.draw(appResultLabel);
+       
         
         nodesBoard.draw();
         
+
         startButton.render(&window);
         breakButton.render(&window);
         pathResetButton.render(&window);
         boardResetButton.render(&window);
         openSettingsButton.render(&window);
+        generateMaze.render(&window);
 
-        settingsWindow.draw();
-
-        
-
-       
-
+        settingsWindow.draw();    
+             
 
         // Update the window
         window.display();
@@ -371,6 +409,11 @@ int main()
         // ------------ RENDERING FUNCTIONS ------------ //
         
 
+
+        currentTime = clock.getElapsedTime();
+        fps = 1.0f / (currentTime.asSeconds() - previousTime.asSeconds()); // the asSeconds returns a float
+        std::cout << "fps =" << floor(fps) << std::endl; // flooring it will make the frame rate a rounded number
+        previousTime = currentTime;
     }
     return EXIT_SUCCESS;
 
@@ -379,7 +422,41 @@ int main()
 
 
 
+void detectResolution(int screenWidth, int screenHeight) {
+
+    //1364 x 768
+    if (screenWidth < 1920 and screenHeight < 1080) {
+
+        //MAIN WINDOW
+        Layout::APP_TITLE_LABLE_FONT_SIZE = 40;
+        Layout::APP_TITLE_LABLE_X = 60;
+        Layout::APP_RESULT_LABLE_FONT_SIZE = 22;
+        Layout::APP_RESULT_LABLE_X = 60;
+        
+        //common properties
+        Layout::MW_TOP_BTNS_X = 725;
+        Layout::MW_TOP_BTNS_Y = 35;
+        Layout::MW_TOP_BTNS_MARGIN = 25;
+        Layout::MW_TOP_BTNS_FONT_SIZE = 17;
+
+        //half common properties
+        Layout::MW_TOP_BTNS_WIDTH = 95;
+        Layout::MW_TOP_BTNS_HEIGHT = 35;
+        Layout::MW_TOP_BTNS_WIDTH_S = 35;
+        Layout::MW_TOP_BTNS_HEIGHT_S = 35;
+
+        //individual properties
+        Layout::START_BTN_X = Layout::MW_TOP_BTNS_X;
+        Layout::BREAK_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 1;
+        Layout::PATH_RESET_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 2;
+        Layout::BOARD_RESET_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 3;
+        Layout::GENERATE_MAZE_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 4;
+        Layout::OPEN_SETTINGS_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 4 + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH_S) * 1;
 
 
+        //SETTINGS WINDOW
+        Layout::FILE_PATH_SAVE_GROUP_Y = 525;
+        Layout::FILE_PATH_LOAD_GROUP_Y = 625;
+    }
 
-
+}

@@ -21,6 +21,10 @@ class Textbox
 friend int main();
 friend class Settings;
 
+public:
+
+	static Textbox* activeTextboxPtr;
+
 private:
 
 	int screenX;

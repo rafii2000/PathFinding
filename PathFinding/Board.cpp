@@ -4,6 +4,25 @@
 
 
 
+void Board::calculateBoardSize() {
+
+	int availableWidth = window->getSize().x - MAIN_LEFT_PADDING - MAIN_RIGHT_PADDING;
+	int availableHeight = window->getSize().y - MAIN_TOP_PADDING - MAIN_BOTTOM_PADDING;
+
+	int inputtedBoardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
+	int inputtedBoardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
+
+	if(inputtedBoardWidth>availableWidth)
+		nodesRowAmount = (availableWidth - 1) / (nodeSize + 1);
+
+	if(inputtedBoardHeight>availableHeight)
+		nodesColumnAmount = (availableHeight - 1) / (nodeSize + 1);
+
+	//std::cout << "nodes in row: " << (availableWidth - 1) / (nodeSize + 1) << std::endl;
+	//std::cout << "nodes in col: " << (availableHeight - 1) / (nodeSize + 1) << std::endl;
+
+}
+
 void Board::createBoard()
 {
 
@@ -89,22 +108,22 @@ void Board::setBoardBordersCords()
 	bottomBorder = lastNodeY + nodeOrigin;
 }
 
-void Board::validateBoardSize()
-{
-	//caluculate as: n * nodeSize + (n+1)*borderSize
-	
-	int boardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
-	int boardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
-
-	if (boardWidth > board_max_width) {
-		nodesRowAmount = (board_max_width - 1) / (nodeSize + 1);
-	}
-
-	if (boardHeight > board_max_height) {
-		nodesColumnAmount = (board_max_height - 1) / (nodeSize + 1);
-	}
-
-}
+//void Board::validateBoardSize()
+//{
+//	//caluculate as: n * nodeSize + (n+1)*borderSize
+//	
+//	int boardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
+//	int boardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
+//
+//	if (boardWidth > board_max_width) {
+//		nodesRowAmount = (board_max_width - 1) / (nodeSize + 1);
+//	}
+//
+//	if (boardHeight > board_max_height) {
+//		nodesColumnAmount = (board_max_height - 1) / (nodeSize + 1);
+//	}
+//
+//}
 
 void Board::draw()
 {
@@ -197,31 +216,40 @@ void Board::callFunctionOnButtonClick()
 		std::cout << "boardState = BLOCK;" << std::endl;
 		RUN_ALGORITHM = true;
 		boardState = BLOCK;				
-		resetAlgorithmAttributes();
-				
+		resetAlgorithmAttributes();				
 	}
 	else if (CLICKED_BTN == btn_id::BREAK_BTN) {
 
 		RUN_ALGORITHM = false;
-		boardState = ACTIVE;
-		
+		boardState = ACTIVE;		
 	}
 	else if (CLICKED_BTN == btn_id::BOARD_RESET_BTN) {
 		
 		if (boardState == ACTIVE) 
-			clearBoard();
-		
-			
+			clearBoard();			
 	}
 	else if (CLICKED_BTN == btn_id::PATH_RESET_BTN) {
 		
 		if (boardState == ACTIVE)
 			clearPath();
 	}
+	else if (CLICKED_BTN == btn_id::GENERATE_MAZE_BTN) {
+
+		if (boardState == ACTIVE) {
+			boardState = BLOCK;
+			std::cout << "Maze is generating" << std::endl;
+
+			generateMaze();
+			//TODO: do some stuff
+			boardState = ACTIVE;
+		}
+	}
 	else if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN) {
-		//robi to samo co openWindowSettings() w Settings class
-		Settings::isOpen = true;
-		boardState = BLOCK;
+
+		if (boardState == ACTIVE) {
+			Settings::isOpen = true;
+			boardState = BLOCK;
+		}
 	}
 
 	//after each click on the button, CLICKED_BTN flag has to be cleared, beacause 
@@ -305,6 +333,36 @@ void Board::resetAlgorithmAttributes()
 
 }
 
+void Board::generateMaze() {
+
+	
+	srand((unsigned)time(0));
+
+	clearBoard();
+	//resetAlgorithmAttributes();
+
+	int randomRange = 35;
+
+	for (int col = 0; col < nodesColumnAmount; col++) {
+
+		for (int row = 0; row < nodesRowAmount; row++) {
+
+			if (nodesBoard2D[col][row].nodeType == WALKABLE) {
+
+				int result = 1 + (rand() % 100);
+
+				if (result <= randomRange) {
+					nodesBoard2D[col][row].putObstacles();
+				}
+				
+			}
+		}
+	}
+	//resetAlgorithmAttributes();
+
+
+}
+
 // -------- BUTTONS FUNCTION -------- //
 
 
@@ -357,7 +415,7 @@ void Board::exploreNodes()
 		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);	//zmien kolor wezla na kolor wezla o stanie CLOSED
 		openNodes.erase(openNodes.begin() + index);			//usun wezel z listy openNodes
 
-		std::cout << "ClosedNode: " << closedNodes.size() << " OpenNodes: " << openNodes.size() << std::endl;
+		//std::cout << "ClosedNode: " << closedNodes.size() << " OpenNodes: " << openNodes.size() << std::endl;
 
 	}
 

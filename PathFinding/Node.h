@@ -40,14 +40,13 @@ private:
 	int nodeSize;
 	int nodeBorder;
 	int origin;
-	std::string color;
+	
 	sf::RenderWindow *window;
 	RectangleShape node;
 
 	//Node's colors flags
 	sf::Color OBSTACLE_COLOR = sf::Color(70, 70, 70);
 	sf::Color WALKABLE_COLOR = sf::Color(170, 170, 170);
-	
 
 
 
