@@ -19,23 +19,25 @@ class Settings
 friend int main();
 
 public:
-	static bool isOpen;
+	inline static bool isOpen = false;
 	
 
 private:
 
-	
-	const int width = 620; //const
-	const int height; //max display_height
-	const int screenX; //screenX = display_width - settings_width;
-	const int screenY = 0; //const
+	//settings card properties
+	const int width = 620;	//const value
+	const int height;		//take user display height
+	const int screenX;		//take user display width minus self width
+	const int screenY = 0;	//const value 
 
 	
-	Board* board;
-	sf::RenderWindow *window;
-	sf::RectangleShape settingsWindow;
-	sf::RectangleShape overlapRect;
+	Board* board;						//pointer to nodesBoard2D
+	sf::RenderWindow *window;			//pointer to render target
+	sf::RectangleShape settingsWindow;	//background container for settingsWindow entities
+	sf::RectangleShape overlapRect;		//rectangle which darken rest part of main window
 
+
+	//settings card elements
 	sf::Text windowTitle;
 	sf::Text nodesInRowLabel;
 	sf::Text nodesInColLabel;
@@ -53,10 +55,6 @@ private:
 	Button loadBoardButton;
 	Button applyBoardResizeButton;
 
-	
-	
-
-
 
 public:
 	Settings(sf::RenderWindow* window, Board* board, sf::Font* font);
@@ -65,8 +63,6 @@ public:
 	void updateButtons();
 
 	void draw();
-
-
 
 	void callFunctionOnButtonClick();
 
@@ -80,11 +76,9 @@ public:
 
 	void onLoadBoardButtonClick();
 
-	
 
 
 	int str_to_int(std::string str);
-
-	std::string int_to_str(int number);
+	
 };
 

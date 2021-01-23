@@ -1,16 +1,12 @@
 #pragma once
-
 #include <iostream>
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
-class Node;
-class Board;
 
 
 enum node_states { NONE = 0, OPEN, CLOSED };
 enum node_types { START_NODE =0, END_NODE, OBSTACLE, WALKABLE};
-
 
 
 class Node: sf::RectangleShape
@@ -18,31 +14,31 @@ class Node: sf::RectangleShape
 
 friend class Board;
 friend class Settings;
-friend int main();	//required in drag_mode
+friend int main();
 
 
 private:
 
+	//Render target pointer
+	sf::RenderWindow* window;
+
 	//A* algorithm properties
-	int x;
-	int y;
-	int gCost; //distance form starting node to currentNode
-	int hCost; //distance from ending node to currentNode
-	int fCost; //sum gCost + hCost
+	int x;		//node position in the nodesBoard2D (index X)
+	int y;		//node position in the nodesBoard2D (index Y)
+	int gCost;	//distance form starting node to currentNode
+	int hCost;	//distance from ending node to currentNode
+	int fCost;	//sum gCost + hCost
 	short unsigned nodeState = NONE;
 	short unsigned nodeType;
 	Node* parentNode = nullptr;
-
 	
 	//RectangleShape properties
 	int screenX;
 	int screenY;
 	int nodeSize;
 	int nodeBorder;
-	int origin;
-	
-	sf::RenderWindow *window;
-	RectangleShape node;
+	int origin;	
+	RectangleShape node;	
 
 	//Node's colors flags
 	sf::Color OBSTACLE_COLOR = sf::Color(70, 70, 70);
@@ -73,22 +69,20 @@ public:
 		node.setFillColor(sf::Color(170, 170, 170));
 		node.setOutlineColor(sf::Color(110, 110, 110));
 
+		//set proper Node's color while board is creating
 		if (nodeType == START_NODE) {
 			std::cout << "startNode" << std::endl;
 			node.setFillColor(sf::Color::Green);
 			gCost = 0;
 		}
-
-		if (nodeType == END_NODE) {
+		else if (nodeType == END_NODE) {
 			std::cout << "endNode" << std::endl;
 			node.setFillColor(sf::Color::Red);
 		}
-
-		if (nodeType == WALKABLE) {			
+		else if (nodeType == WALKABLE) {			
 			node.setFillColor(WALKABLE_COLOR);			
 		}
-
-		if (nodeType == OBSTACLE) {
+		else if (nodeType == OBSTACLE) {
 			node.setFillColor(OBSTACLE_COLOR);
 		}
 
@@ -96,7 +90,7 @@ public:
 
 	
 
-	bool isMouseOn(int mouse_x, int mouse_y);
+	bool isMouseOn(int mouseX, int mouseY);
 
 	void putObstacles();
 	
@@ -106,8 +100,7 @@ public:
 
 	void makeWalkable();
 	
-	void draw();
-	
+	void draw();	
 
 };
 

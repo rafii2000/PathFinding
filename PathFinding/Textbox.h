@@ -23,25 +23,23 @@ friend class Settings;
 
 public:
 
-	static Textbox* activeTextboxPtr;
+	inline static Textbox* activeTextboxPtr = nullptr;
 
 private:
 
 	int screenX;
-	int screenY;
+	int screenY;	
 	int width;
 	int height;
-
 	int fontSize;
 	int charLimit;
 	
-
-	std::string text = "";
-	std::string placeholder;
-	sf::Font* font;
-	sf::Text typedText;	
+	std::string text = "";		//value to display
+	std::string placeholder;	//value which inform what type of input is required
+	sf::Font* font;				//SFML object which load font
+	sf::Text typedText;			//SFML object which display text on screen
+	sf::RectangleShape shape;	//rectangle which imitate textbox field to detect does it have focus
 	sf::RenderWindow* window;
-	sf::RectangleShape shape;
 
 	bool hasFocus = false;
 
@@ -63,7 +61,6 @@ public:
 		this->screenY= screenY;
 		this->width = width;
 		this->height = height;
-
 		
 
 		typedText.setPosition(screenX, screenY);
@@ -83,6 +80,7 @@ public:
 
 	}
 
+
 	bool isMouseOn();
 
 	void update();
@@ -96,10 +94,7 @@ public:
 	
 	void setPlaceholderInTextbox();
 
-	void setTextboxString(std::string str);
-
-	
-	
+	void setTextboxString(std::string str);	
 
 };
 

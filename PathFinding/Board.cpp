@@ -1,7 +1,5 @@
 #include "Board.h"
-
 #include "Node.h"
-
 
 
 void Board::calculateBoardSize() {
@@ -12,10 +10,10 @@ void Board::calculateBoardSize() {
 	int inputtedBoardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
 	int inputtedBoardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
 
-	if(inputtedBoardWidth>availableWidth)
+	if(inputtedBoardWidth > availableWidth)
 		nodesRowAmount = (availableWidth - 1) / (nodeSize + 1);
 
-	if(inputtedBoardHeight>availableHeight)
+	if(inputtedBoardHeight > availableHeight)
 		nodesColumnAmount = (availableHeight - 1) / (nodeSize + 1);
 
 	//std::cout << "nodes in row: " << (availableWidth - 1) / (nodeSize + 1) << std::endl;
@@ -39,13 +37,11 @@ void Board::createBoard()
 	margin_x = (window->getSize().x - nodesBoardWidth) / 2 + (nodeSize / 2);
 	margin_y = (window->getSize().y - nodesBoardHeight) / 2 + (nodeSize / 2) + board2DMargin;;
 
-	std::cout << "margins:" << margin_x << " " << margin_y << std::endl;
-
 	int screenX = margin_x; //first Node X position
 	int screenY = margin_y; //first Node Y position
 
-	std::cout << "first Node cords x: " << screenX << " y: " << screenY << std::endl;
-
+	//std::cout << "margins:" << margin_x << " " << margin_y << std::endl;
+	//std::cout << "first Node cords x: " << screenX << " y: " << screenY << std::endl;
 
 	//determine startNode and endNode horizontal position
 	int startNodeRowPos = nodesRowAmount / 4;
@@ -55,10 +51,10 @@ void Board::createBoard()
 	int nodeColumnPos = nodesColumnAmount / 2;
 
 
-	//col = vertical	row = horizontal
+	//col - vertical	row - horizontal
 	for (int col = 0; col < nodesColumnAmount; col++) {
 
-		std::vector<Node> nodesRow;  //is this a good practice?
+		std::vector<Node> nodesRow;
 
 		for (int row = 0; row < nodesRowAmount; row++) {
 
@@ -94,7 +90,8 @@ void Board::createBoard()
 
 void Board::setBoardBordersCords()
 {
-	
+	//this values help detect if mouse is IN or OUTSIDE the board
+
 	int firstNodeX = nodesBoard2D[0][0].screenX;
 	int firstNodeY = nodesBoard2D[0][0].screenY;
 	int lastNodeX = nodesBoard2D.back().back().screenX;
@@ -107,23 +104,6 @@ void Board::setBoardBordersCords()
 	rightBorder = lastNodeX + nodeOrigin;
 	bottomBorder = lastNodeY + nodeOrigin;
 }
-
-//void Board::validateBoardSize()
-//{
-//	//caluculate as: n * nodeSize + (n+1)*borderSize
-//	
-//	int boardWidth = nodesRowAmount * nodeSize + (nodesRowAmount + 1) * nodeBorder;
-//	int boardHeight = nodesColumnAmount * nodeSize + (nodesColumnAmount + 1) * nodeBorder;
-//
-//	if (boardWidth > board_max_width) {
-//		nodesRowAmount = (board_max_width - 1) / (nodeSize + 1);
-//	}
-//
-//	if (boardHeight > board_max_height) {
-//		nodesColumnAmount = (board_max_height - 1) / (nodeSize + 1);
-//	}
-//
-//}
 
 void Board::draw()
 {
@@ -138,12 +118,11 @@ void Board::draw()
 	}
 }
 
-
-
-
 Coordinates Board::mouseToBoardIndexes(int mouseX, int mouseY)
 {
-	//function converts mouse possition to node coordinates in nodesBoard2D
+	//if mouse is on the board then function convert its position to
+	//X and Y coordinates in nodesBoard2D
+	
 	
 	Coordinates nodeCords;
 	nodeCords.x = -1;    //bad value
@@ -190,7 +169,7 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 {
 	
 	Coordinates nodeCordsInBoard;
-	nodeCordsInBoard = mouseToBoardIndexes(mouseX, mouseY); //przez ta funkcje dodalem tylko parametry
+	nodeCordsInBoard = mouseToBoardIndexes(mouseX, mouseY);
 	int row = nodeCordsInBoard.x;
 	int col = nodeCordsInBoard.y;
 
@@ -211,7 +190,7 @@ void Board::callFunctionOnButtonClick()
 
 	if (CLICKED_BTN == btn_id::START_BTN) {
 
-		//block board, because the visualization is runnig
+		//block board because the visualization is runnig
 		std::cout << "START_BTN" << std::endl;
 		std::cout << "boardState = BLOCK;" << std::endl;
 		RUN_ALGORITHM = true;
@@ -224,38 +203,28 @@ void Board::callFunctionOnButtonClick()
 		boardState = ACTIVE;		
 	}
 	else if (CLICKED_BTN == btn_id::BOARD_RESET_BTN) {
-		
-		if (boardState == ACTIVE) 
-			clearBoard();			
+		/*if (boardState == ACTIVE)*/
+		clearBoard();			
 	}
-	else if (CLICKED_BTN == btn_id::PATH_RESET_BTN) {
-		
-		if (boardState == ACTIVE)
-			clearPath();
+	else if (CLICKED_BTN == btn_id::PATH_RESET_BTN) {		
+		/*if (boardState == ACTIVE)*/
+		clearPath();
 	}
 	else if (CLICKED_BTN == btn_id::GENERATE_MAZE_BTN) {
-
-		if (boardState == ACTIVE) {
-			boardState = BLOCK;
-			std::cout << "Maze is generating" << std::endl;
-
-			generateMaze();
-			//TODO: do some stuff
-			boardState = ACTIVE;
-		}
+		/*if (boardState == ACTIVE)*/
+		boardState = BLOCK;
+		std::cout << "Maze is generating" << std::endl;
+		generateMaze();		
+		boardState = ACTIVE;		
 	}
 	else if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN) {
-
-		if (boardState == ACTIVE) {
-			Settings::isOpen = true;
-			boardState = BLOCK;
-		}
+		/*if (boardState == ACTIVE)*/
+		Settings::isOpen = true;
+		boardState = BLOCK;
 	}
 
-	//after each click on the button, CLICKED_BTN flag has to be cleared, beacause 
-	//each function assign to button can be call only once, otherwise CLICKED_BTN 
-	//would have assign previous value, until next button would be clicked
-	CLICKED_BTN = btn_id::NONE;
+	//sometimes keeping saved previous clicked buttond ID can cause some unexpected behaviour, it is better to reset it
+	//CLICKED_BTN = btn_id::NONE;	//move to main()
 
 }
 
@@ -285,7 +254,7 @@ void Board::clearPath()
 
 			if (nodesBoard2D[col][row].nodeType == WALKABLE) {
 
-				//set default values on each Node in nodesBoard
+				//set default values on choosen node in nodesBoard
 				nodesBoard2D[col][row].setDefaultAttributes();
 			}
 		}
@@ -335,38 +304,27 @@ void Board::resetAlgorithmAttributes()
 
 void Board::generateMaze() {
 
-	
 	srand((unsigned)time(0));
 
 	clearBoard();
-	//resetAlgorithmAttributes();
-
+	
 	int randomRange = 35;
 
 	for (int col = 0; col < nodesColumnAmount; col++) {
-
 		for (int row = 0; row < nodesRowAmount; row++) {
 
 			if (nodesBoard2D[col][row].nodeType == WALKABLE) {
 
 				int result = 1 + (rand() % 100);
 
-				if (result <= randomRange) {
+				if (result <= randomRange)
 					nodesBoard2D[col][row].putObstacles();
-				}
-				
 			}
 		}
 	}
-	//resetAlgorithmAttributes();
-
-
 }
 
 // -------- BUTTONS FUNCTION -------- //
-
-
-
 
 
 
@@ -547,24 +505,20 @@ bool Board::isNodeInBoard(int x, int y)
 
 void Board::showPath()
 {
-	
+	//jesli droga zostanie znaleziona to endNode ma przypisany wskaznik na parentNode
+	//i wtedy cofajac sie wyznaczana jest trasa
+
 	Node* currentPathNode = nodesBoard2D[endNodeCords.y][endNodeCords.x].parentNode;
-	Node* tempNode;
-	
+		
 	while (currentPathNode->nodeType != START_NODE) {
 
 		currentPathNode->node.setFillColor(LIGHT_YELLOW);
-		tempNode = currentPathNode->parentNode;
-		currentPathNode = tempNode;
+		currentPathNode = currentPathNode->parentNode;		
 	}
 
 }
 
 // -------- A* ALGORITHM LOGIC -------- //
-
-
-
-
 
 
 
@@ -578,7 +532,8 @@ void Board::createBoardFromFile(std::string fileName)
 	std::ifstream file(fileName);
 
 	if (file) {
-		std::cout << "File loaded: " << fileName << std::endl;
+		
+		std::cout << "File: '" << fileName << "' loaded successfully!" << std::endl;
 		 
 		//new border values read from file
 		int newNodeRowAmt = 0;
@@ -590,7 +545,7 @@ void Board::createBoardFromFile(std::string fileName)
 		int lineIndex = 1;
 		int operations = 1;
 
-		//indexe for nested loop
+		//index for nested loop
 		int col;
 
 		//values to center border
@@ -601,12 +556,12 @@ void Board::createBoardFromFile(std::string fileName)
 		int screenX; 
 		int screenY;
 
+		//clear nodesBoard2D before crete a new one
 		nodesBoard2D.clear();
 
-		//scan file and find board size
+		//scan file and load a board
 		while (getline(file, line)) {
 
-			/*std::cout << line.length() << std::endl;*/
 			//break if last line is "\n"
 			if (line.length() == 0 and lineIndex > 4) break;
 
@@ -640,8 +595,7 @@ void Board::createBoardFromFile(std::string fileName)
 					
 				default: {
 
-					
-					std::vector<Node> nodesRow;  //is this a good practice?
+					std::vector<Node> nodesRow;
 					
 					col = lineIndex - operations;
 					for (int row = 0;  row < line.length(); row++) {
@@ -662,18 +616,21 @@ void Board::createBoardFromFile(std::string fileName)
 							endNodeCords.y = col;
 						}
 						else if (readNodeType == "O") {
-							//add endNode to the nodesBoard
+							//add walkalbelNode to the nodesBoard
 							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, WALKABLE));						
 						}
 						else if (readNodeType == "X") {
-							//add endNode to the nodesBoard
+							//add obstacleNode to the nodesBoard
 							nodesRow.push_back(Node(nodeSize, nodeBorder, screenX, screenY, row, col, window, OBSTACLE));						
 						}						
 
+						//set X possition for the next node
 						screenX += nodeSize + nodeBorder;
 					}
 
-					screenX = margin_x;
+					//reset X possition and begin new row from margin
+					//set Y position for the next row of nodes
+					screenX = margin_x;				
 					screenY += nodeSize + nodeBorder;
 
 					nodesBoard2D.push_back(nodesRow);
@@ -681,24 +638,20 @@ void Board::createBoardFromFile(std::string fileName)
 				}break;
 			}
 
-
 			lineIndex++;
-			
+
 		}
 
 		setBoardBordersCords();		
 
 	}
 	else {
-		std::cout << "File not found: "<< fileName << std::endl;
+		std::cout << "Load failed: " << "file '" << fileName << "' not found: " << std::endl;
 	}
 
 	file.close();
-
 	
-
 }
-
 
 // -------- SETTINGS PANEL -------- //
 

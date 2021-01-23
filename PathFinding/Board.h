@@ -10,8 +10,6 @@
 #include "Node.h"
 #include "Settings.h"
 
-class Layout;
-
 
 extern btn_id CLICKED_BTN;
 extern bool RUN_ALGORITHM;
@@ -25,7 +23,6 @@ struct Coordinates {
 	int y;
 };
 
-class Settings;
 
 class Board
 {
@@ -52,7 +49,7 @@ private:
 	sf::Color START_NODE_HOVER = sf::Color(0, 235, 0);
 	sf::Color END_NODE_HOVER = sf::Color(225, 0, 0);
 
-	
+
 	//Board
 	int leftBorder;
 	int topBorder;
@@ -75,13 +72,10 @@ private:
 	Coordinates startNodeCords;
 	Coordinates endNodeCords;
 	Node* nextMasterNode = nullptr; // maybe nextClosedNode would be a better name ?
-
-	int diagonalCost = 14;
-	int forwardCost = 10;
-
 	std::vector<Node*> openNodes;
 	std::vector<Node*> closedNodes;
-
+	int diagonalCost = 14;
+	int forwardCost = 10;
 
 
 
@@ -98,7 +92,6 @@ public:
 		this->nodesColumnAmount = nodesColAmt;
 		
 		calculateBoardSize();
-		//validateBoardSize();
 		createBoard();
 		setBoardBordersCords();
 	}
@@ -111,13 +104,7 @@ public:
 
 	void setBoardBordersCords();
 
-	/*void validateBoardSize();*/
-
-	void draw();
-
-	
-
-	//Functionalities
+	void draw();	
 
 	Coordinates mouseToBoardIndexes(int mouseX, int mouseY);
 
@@ -126,6 +113,11 @@ public:
 	void putObstacles(int mouseX, int mouseY);
 
 	void eraseObstacles(int mouseX, int mouseY);
+
+
+
+
+	// -------- BUTTONS FUNCTION -------- //
 	
 	void callFunctionOnButtonClick();
 
@@ -138,10 +130,11 @@ public:
 	void resetAlgorithmAttributes();
 
 	void generateMaze();
+		
 
 
 
-	// -------- A* alghoritm -------- //
+	// -------- A* ALGORITHM LOGIC -------- //
 
 	void exploreNodes();
 
@@ -154,29 +147,14 @@ public:
 	void showPath();
 
 	bool isNodeInBoard(int x, int y);
-
-	// -------- A* alghoritm -------- //
-
+	
 
 
 
-	// -------- Settings Panel -------- //
+	// -------- SETTINGS PANEL-------- //
 
 	void createBoardFromFile(std::string fileName);
 
-	// -------- Settings Panel -------- //
-
-
-
-	// ---------------- Maze ---------------- //
-	
-	/*void generateMaze();*/
-
-	// ---------------- Maze ---------------- //
-
-
-	
-	
 
 };
 

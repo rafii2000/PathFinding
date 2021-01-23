@@ -62,7 +62,7 @@ void Settings::updateButtons()
 void Settings::draw()
 {
 	if (isOpen == true) {
-				
+		
 		//Containers
 		window->draw(overlapRect);
 		window->draw(settingsWindow);		
@@ -86,9 +86,6 @@ void Settings::draw()
 		loadBoardButton.render(window);
 		applyBoardResizeButton.render(window);
 
-		//jesli updateButtons() jest przed draw, to wylacza CLICK_EVENT 
-		//i nie schodzi focus z Textboxow
-		updateButtons();
 	}
 }
 
@@ -97,12 +94,13 @@ void Settings::callFunctionOnButtonClick()
 {
 
 	if (CLICKED_BTN == btn_id::OPEN_SETTINGS_BTN) {
-		//przeniesione do Board.cpp
+		//moved to Board.cpp
 	}
 	else if (CLICKED_BTN == btn_id::CLOSE_SETTINGS_BTN) {
 		closeWindowSettings();				
 	}
 	else if (CLICKED_BTN == btn_id::APPLY_BOARD_RESIZE_BTN) {
+		std::cout << "Apply" << std::endl;
 		onApplyButtonClick();
 	}
 	else if (CLICKED_BTN == btn_id::SAVE_BOARD_BTN) {
@@ -112,13 +110,13 @@ void Settings::callFunctionOnButtonClick()
 		onLoadBoardButtonClick();
 	}
 
-	//close settinsWindow on mouseout
+	//close settinsWindow on click outside the settings card
 	if (!settingsWindow.getGlobalBounds().contains(float(mouseX), float(mouseY)))
 		if (CLICK_EVENT)
 			closeWindowSettings();			
-	
 
-	CLICKED_BTN = btn_id::NONE;
+	//sometimes keeping saved previous clicked buttond ID can cause some unexpected behaviour, it is better to reset it
+	//CLICKED_BTN = btn_id::NONE;	//move to main()
 
 }
 
@@ -128,8 +126,7 @@ void Settings::closeWindowSettings()
 	//set attributes
 	isOpen = false;
 	board->boardState = ACTIVE;
-	if(Textbox::activeTextboxPtr != nullptr)
-		Textbox::activeTextboxPtr->update();
+	if(Textbox::activeTextboxPtr != nullptr) Textbox::activeTextboxPtr->update();
 
 
 	//restore not applied Textboxes strings
@@ -161,7 +158,6 @@ void Settings::onApplyButtonClick()
 		//resize nodesBoard2SD
 		board->nodesBoard2D.clear();	
 		board->calculateBoardSize();
-		/*board->validateBoardSize();*/ //old bad function,to remove
 		board->createBoard();
 		board->setBoardBordersCords();				
 		
@@ -178,7 +174,7 @@ void Settings::onApplyButtonClick()
 
 bool Settings::newBoardSizeValidation(int row, int col, int size)
 {
-	
+	//It is not a major thing of a program
 	if (row == 0 || col == 0 || size == 0) return false;	
 	if (row < 5 || col < 5 || size < 5) return false;	
 	
@@ -188,57 +184,56 @@ bool Settings::newBoardSizeValidation(int row, int col, int size)
 void Settings::onSaveBoardButtonClick()
 {	
 	std::string fileName = filePathSaveTextbox.typedText.getString();
-	//std::string fileName = "saved/" + filePathSaveTextbox.typedText.getString();
-
+	
 	if (fileName == filePathSaveTextbox.placeholder) {
-		std::cout << "Save faild: File name cant be placeholder!" << std::endl;
+		std::cout << "Save failed: File name cant be a placeholder!" << std::endl;
 		return;
 	}
 
 	fileName = "saved/" + fileName;
 
-	//std::cout << "saved file name: " << fileName << std::endl;
-	
 	std::ofstream file(fileName.c_str());
 
-	if (!file) { std::cout << "blad" << std::endl; }
-	
-	//save board size
-	file << std::to_string(board->nodesRowAmount) << "\n";
-	file << std::to_string(board->nodesColumnAmount) << "\n";
-	file<< std::to_string(board->nodeSize) << "\n";
-	file <<  "\n";
+	if (!file) { 
+		std::cout << "Save failed: 'saved' directory has been removed, create new one!" << std::endl; 
+	}
+	else {
+
+		//save board size
+		file << std::to_string(board->nodesRowAmount) << "\n";
+		file << std::to_string(board->nodesColumnAmount) << "\n";
+		file<< std::to_string(board->nodeSize) << "\n";
+		file <<  "\n";
 
 
-	//save board
-	for (int j = 0; j < board->nodesColumnAmount; j++) {
+		//save board
+		for (int j = 0; j < board->nodesColumnAmount; j++) {
 
-		for (int i = 0; i < board->nodesRowAmount; i++) {
+			for (int i = 0; i < board->nodesRowAmount; i++) {
 
-			switch (board->nodesBoard2D[j][i].nodeType)
-			{
-				case WALKABLE:		file << "O";	break;
-				case OBSTACLE:		file << "X";	break;
-				case START_NODE:	file << "S";	break;
-				case END_NODE:		file << "E";	break;
+				switch (board->nodesBoard2D[j][i].nodeType)
+				{
+					case WALKABLE:		file << "O";	break;
+					case OBSTACLE:		file << "X";	break;
+					case START_NODE:	file << "S";	break;
+					case END_NODE:		file << "E";	break;
 
-			default:
-				break;
-			}
+				default:
+					break;
+				}
 			
-		}
-		file << "\n";
-	}	
+			}
+			file << "\n";
+		}	
+
+		std::cout << "File: '"<<fileName<<"' saved successfully!"<< std::endl;
+	}
 
 	file.close();
-
-	std::cout << "File: "<<fileName<<" saved successfully!"<< std::endl;
 }
 
 void Settings::onLoadBoardButtonClick()
 {
-
-	std::cout << "Load file" << std::endl;
 
 	std::string fileName = "saved/" + filePathLoadTextbox.typedText.getString();
 
@@ -259,7 +254,4 @@ int Settings::str_to_int(std::string str)
 	return atoi(str.c_str());
 }
 
-std::string Settings::int_to_str(int number)
-{
-	return std::to_string(number);
-}
+

@@ -2,11 +2,9 @@
 
 
 //constructor
-
-
 Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize, 
 	std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,
-	btn_id buttonID, std::string texture_path)
+	btn_id buttonID, std::string texturePath)
 {
 	
 	this->buttonState = BTN_IDLE;
@@ -16,6 +14,7 @@ Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize
 	this->shape.setSize(sf::Vector2f(width, height));
 	this->shape.setOutlineThickness(1);
 	this->shape.setOutlineColor(sf::Color(70, 70, 70));
+	this->shape.setFillColor(idleColor);
 	
 	this->font = font;
 	this->fontSize = fontSize;
@@ -32,17 +31,19 @@ Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize
 	this->hoverColor = hoverColor;
 	this->activeColor = activeColor;
 
-	this->shape.setFillColor(this->idleColor);
-
 	
+	if (texturePath != ""){
 
-	if (texture_path != ""){
-		this->texturePath = texture_path;
-		if (!texture.loadFromFile(texture_path)) { /*handle error*/}
+		this->texturePath = texturePath;
 
-		sprite.setTexture(texture);
-		sprite.setPosition(x+width/2,y+height/2);
-		sprite.setOrigin(texture.getSize().x/2, texture.getSize().y/2);		
+		if (!texture.loadFromFile(texturePath)) {
+			/*handle error*/
+		}
+		else {
+			sprite.setTexture(texture);
+			sprite.setPosition(x + width / 2, y + height / 2);
+			sprite.setOrigin(texture.getSize().x / 2, texture.getSize().y / 2);
+		}		
 	}
 
 }
@@ -51,7 +52,7 @@ Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize
 
 const bool Button::isPressed()
 {
-	if (this->buttonState == BTN_PRESSED)
+	if (buttonState == BTN_PRESSED)
 		return true; 
 	
 	return false;
@@ -59,67 +60,45 @@ const bool Button::isPressed()
 
 void Button::update(int mouseX, int mouseY)
 {
-	/*Update the booleans for hover and pressed*/
-
-	//bad solution - exclusion update some buttons
-	if (RUN_ALGORITHM == true)
-		if (buttonID != btn_id::START_BTN and buttonID != btn_id::BREAK_BTN)
-			return;
-
 	//Idle
-	this->buttonState = BTN_IDLE;
+	buttonState = BTN_IDLE;
 	
 	//Hover 	
-	if (this->shape.getGlobalBounds().contains({(float)mouseX, (float)mouseY})) {
+	if (shape.getGlobalBounds().contains({(float)mouseX, (float)mouseY})) {
 
-		this->buttonState = BTN_HOVER;
+		buttonState = BTN_HOVER;
 		
-		//Pressed
+		//Press
 		if (MOUSE_STATE == mf::LEFT_PRESSED) {
 
-			this->buttonState = BTN_PRESSED;
-
+			buttonState = BTN_PRESSED;
 		}
-		//Click (on button released)
+		//Click (on mouse button released)
 		else if (CLICK_EVENT == true) {
-	
-			std::cout << "CLICK_EVENT" << std::endl;
-			CLICK_EVENT = false;
 
-			CLICKED_BTN = buttonID; //tym sposobem pozbywam sie ogroma zbednych funkcji
-			//callButtonFunction();
+			std::cout << "CLICK_EVENT" << std::endl;
+
+			//set global variable 'CLICKED_BTN' to current hovered button ID
+			CLICKED_BTN = buttonID; 
 		}
 	}
 
-	switch (this->buttonState)
+	switch (buttonState)
 	{
-	case BTN_IDLE:
-		this->shape.setFillColor(this->idleColor);
-		break;
-
-	case BTN_HOVER:
-		this->shape.setFillColor(this->hoverColor);
-		break;
-
-	case BTN_PRESSED:
-		this->shape.setFillColor(this->activeColor);
-		break;
-
-
-	default:
-		this->shape.setFillColor(this->idleColor);
-		break;
+		case BTN_IDLE:		shape.setFillColor(idleColor);		break;
+		case BTN_HOVER:		shape.setFillColor(hoverColor);		break;
+		case BTN_PRESSED:	shape.setFillColor(activeColor);	break;
+		default:			shape.setFillColor(idleColor);		break;
 	}
-
 }
 
 void Button::render(sf::RenderWindow* window)
 {
-	window->draw(this->shape);
-	window->draw(this->text);
+	window->draw(shape);
+	window->draw(text);
 	if (texturePath != "")
-		window->draw(this->sprite);		
-	
+		window->draw(sprite);
+
 }
 
 

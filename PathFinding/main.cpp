@@ -3,18 +3,12 @@
 #include "SFML/Window.hpp"
 
 #include "Constants.h"
-
 #include "Node.h"
 #include "Board.h"
 #include "Button.h"
 #include "Settings.h"
 #include "Layout.h"
 
-
-
-//statics
-bool Settings::isOpen = false;
-Textbox* Textbox::activeTextboxPtr = nullptr;
 
 
 
@@ -46,35 +40,40 @@ int main()
 
     // ------------ INITIALIZE ELEMENTS / OBJECTS ------------ //
 
-    // Create the main window    
-    sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-    int screenWidth = desktopMode.width;
-    int screenHeight = desktopMode.height;
-    std::cout << screenWidth << screenHeight << std::endl;
-    std::cout << desktopMode.width << desktopMode.height << std::endl;
-    //sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
-    //sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height - 40), "SFML PathFinding", sf::Style::Fullscreen);
-    sf::RenderWindow window(sf::VideoMode(1364, 768), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
-    //window.setFramerateLimit(140);
-
+    // FPS variables
     float fps;
     sf::Clock clock = sf::Clock::Clock();
     sf::Time previousTime = clock.getElapsedTime();
     sf::Time currentTime;
 
-    detectResolution(window.getSize().x, window.getSize().y);
+    // Create the main window    
+    sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
+    sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
+    
+    //Set proper layout based on screen resolution
+    detectResolution(desktopMode.width, desktopMode.width);
+    std::cout << "Screen resolution: " << desktopMode.width << " x " << desktopMode.height << std::endl;   
 
-    // Create a graphical text to display
+    // Load font
     sf::Font font;
     if (!font.loadFromFile("arial_narrow_7.ttf")) return EXIT_FAILURE;
+   
+    // Create lables
     sf::Text appTitle("SFML PathFinding visualization", font, Layout::APP_TITLE_LABLE_FONT_SIZE);
     appTitle.setPosition(sf::Vector2f(Layout::APP_TITLE_LABLE_X, Layout::APP_TITLE_LABLE_Y));
+   
     sf::Text appResultLabel("Path between points doesn't exist", font, Layout::APP_RESULT_LABLE_FONT_SIZE);
     appResultLabel.setPosition(sf::Vector2f(Layout::APP_RESULT_LABLE_X, Layout::APP_RESULT_LABLE_Y));
     appResultLabel.setFillColor(sf::Color::Transparent);
+    
+    sf::Text appFPSLabel("150", font, 16);
+    appFPSLabel.setPosition(10,5);
+    appFPSLabel.setFillColor(sf::Color::Blue);
    
-    // Create a most important part of program - board of nodes
-    Board nodesBoard(window, 30, 1, 1000, 1000);   
+    // Create board of nodes
+    Board nodesBoard(window, 30, 1, 1000, 1000);
+
+    // Create settings panel card
     Settings settingsWindow(&window, &nodesBoard, &font);
             
     // Create a buttons    
@@ -95,25 +94,23 @@ int main()
     while (window.isOpen())
     {
 
+        //clean up previous loop iteration actions
+        CLICKED_BTN = btn_id::NONE;
+        CLICK_EVENT = false;    
+
+        
         // ------------ EVENT LOOP ------------ //
         // Process events
         sf::Event event;
+       
         while (window.pollEvent(event))
         {
             // Close window: exit
             if (event.type == sf::Event::Closed) {
-                std::cout << "click close" << std::endl;
                 window.close();
-            }
-               
-            else if (event.key.code == sf::Keyboard::Escape) {
-                std::cout << "escape close" << std::endl;
-                window.close();
-            }
+            }           
 
-                         
             //Mouse events
-            CLICK_EVENT = false;
             if (event.type == sf::Event::MouseButtonPressed) {
 
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
@@ -152,11 +149,8 @@ int main()
                     //activeTextboxPtr ma zawsze wskaznik na ostatni uzyty Textbox, ale poniewaz ten 
                     //ostatniTextbox ma hasFocus=false to funkcja writeText() nic nie wstawi
                     if(Textbox::activeTextboxPtr != nullptr)
-                        Textbox::activeTextboxPtr->writeText(charUnicode);                 
-                  
+                        Textbox::activeTextboxPtr->writeText(charUnicode); 
                 }
-
-
             }
         }
         // ------------ EVENT LOOP ------------ //
@@ -166,27 +160,27 @@ int main()
 
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
-
         
-        //dla wydajnosci bylo:
-        //if (nodesBoard.isMouseOnBoard == false)
-        //ale to psuje update przycisku openSettingsButton();
-
          //idle, hover, click, set CLICKED_BTN id
         if (Settings::isOpen == false) {
            
             startButton.update(mouseX, mouseY);
             breakButton.update(mouseX, mouseY);
-            pathResetButton.update(mouseX, mouseY);
-            boardResetButton.update(mouseX, mouseY);
-            openSettingsButton.update(mouseX, mouseY);
-            generateMaze.update(mouseX, mouseY);
 
+            if (RUN_ALGORITHM == false) {
+                pathResetButton.update(mouseX, mouseY);
+                boardResetButton.update(mouseX, mouseY);
+                openSettingsButton.update(mouseX, mouseY);
+                generateMaze.update(mouseX, mouseY);
+            }
+          
             //call proper function
             nodesBoard.callFunctionOnButtonClick();
         }
 
         if (Settings::isOpen == true) {
+
+            settingsWindow.updateButtons();
             settingsWindow.callFunctionOnButtonClick();
         }
 
@@ -255,16 +249,14 @@ int main()
 
                 if (nodesBoard.previousDrgged != nullptr) {
                     nodesBoard.previousDrgged->makeWalkable();
-                }
-                                                                
+                }                                                                
             }
             //clear doubled endNode
             else if (END_NODE_DRAG_MODE == true) {
 
                 if (nodesBoard.previousDrgged != nullptr) {
                     nodesBoard.previousDrgged->makeWalkable();
-                }
-                                    
+                }                                    
             }
 
 
@@ -335,8 +327,7 @@ int main()
                     nodesBoard.previousDrgged = nullptr;
                     nodesBoard.currentDrgged = nullptr;
                 }
-                            
-                    
+                                
             }
 
         }
@@ -347,12 +338,11 @@ int main()
 
 
 
-
         // ------------ A* ALGHORITHM ------------ //              
         
         if (RUN_ALGORITHM == true) {
 
-            //sf::sleep(sf::microseconds(10));    //visualization delay
+            //sf::sleep(sf::microseconds(10));  //visualization delay
             nodesBoard.exploreNodes();          //main visualization function
         }
 
@@ -366,11 +356,8 @@ int main()
             IS_PATH_FOUND = false;
             PATH_NOT_EXIST = false;
             nodesBoard.boardState = ACTIVE;           
-        }
-
-       
+        }  
         
-       
         // ------------ A* ALGHORITHM ------------ //
 
        
@@ -379,19 +366,19 @@ int main()
 
         
         // ------------ RENDERING FUNCTIONS ------------ //
+        //object render sequence is important, objects cover each other
+
         // Clear screen
         window.clear(sf::Color(170, 170, 170));
         window.setPosition(sf::Vector2i(-8, 0));
 
-
         // Draw elements
         window.draw(appTitle);
         window.draw(appResultLabel);
+        window.draw(appFPSLabel);       
+        
+        nodesBoard.draw();        
        
-        
-        nodesBoard.draw();
-        
-
         startButton.render(&window);
         breakButton.render(&window);
         pathResetButton.render(&window);
@@ -399,21 +386,25 @@ int main()
         openSettingsButton.render(&window);
         generateMaze.render(&window);
 
-        settingsWindow.draw();    
-             
+        settingsWindow.draw();  //render last, must cover other elements
 
         // Update the window
         window.display();
-
        
         // ------------ RENDERING FUNCTIONS ------------ //
         
 
 
+
+
+        // ------------ FPS SECTION ------------ //
+
         currentTime = clock.getElapsedTime();
         fps = 1.0f / (currentTime.asSeconds() - previousTime.asSeconds()); // the asSeconds returns a float
-        std::cout << "fps =" << floor(fps) << std::endl; // flooring it will make the frame rate a rounded number
+        appFPSLabel.setString(std::to_string(int(fps)));
         previousTime = currentTime;
+
+        // ------------ FPS SECTION ------------ //
     }
     return EXIT_SUCCESS;
 
@@ -446,14 +437,8 @@ void detectResolution(int screenWidth, int screenHeight) {
         Layout::MW_TOP_BTNS_HEIGHT_S = 35;
 
         //individual properties
-        Layout::START_BTN_X = Layout::MW_TOP_BTNS_X;
-        Layout::BREAK_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 1;
-        Layout::PATH_RESET_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 2;
-        Layout::BOARD_RESET_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 3;
-        Layout::GENERATE_MAZE_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 4;
-        Layout::OPEN_SETTINGS_BTN_X = Layout::MW_TOP_BTNS_X + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH) * 4 + (Layout::MW_TOP_BTNS_MARGIN + Layout::MW_TOP_BTNS_WIDTH_S) * 1;
-
-
+        Layout::set_MW_TOP_BTNS_X();
+;      
         //SETTINGS WINDOW
         Layout::FILE_PATH_SAVE_GROUP_Y = 525;
         Layout::FILE_PATH_LOAD_GROUP_Y = 625;
