@@ -9,7 +9,7 @@ enum node_states { NONE = 0, OPEN, CLOSED };
 enum node_types { START_NODE =0, END_NODE, OBSTACLE, WALKABLE};
 
 
-class Node: sf::RectangleShape
+class Node
 {
 
 friend class Board;
@@ -19,8 +19,7 @@ friend int main();
 
 private:
 
-	//Render target pointer
-	sf::RenderWindow* window;
+	sf::RenderWindow* window;	//Render target pointer
 
 	//A* algorithm properties
 	int x;		//node position in the nodesBoard2D (index X)
@@ -38,7 +37,7 @@ private:
 	int nodeSize;
 	int nodeBorder;
 	int origin;	
-	RectangleShape node;	
+	sf::RectangleShape node;	
 
 	//Node's colors flags
 	sf::Color OBSTACLE_COLOR = sf::Color(70, 70, 70);
@@ -71,12 +70,10 @@ public:
 
 		//set proper Node's color while board is creating
 		if (nodeType == START_NODE) {
-			std::cout << "startNode" << std::endl;
 			node.setFillColor(sf::Color::Green);
 			gCost = 0;
 		}
 		else if (nodeType == END_NODE) {
-			std::cout << "endNode" << std::endl;
 			node.setFillColor(sf::Color::Red);
 		}
 		else if (nodeType == WALKABLE) {			

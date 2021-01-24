@@ -22,11 +22,10 @@ extern bool RUN_ALGORITHM;
 
 enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_PRESSED };
 
-class Button: sf::RectangleShape
+class Button
 {
 	
 private:
-
 	
 	btn_id buttonID;
 	std::string texturePath="";
@@ -53,9 +52,6 @@ public:
 		btn_id buttonID, std::string texturePath="");
 
 	
-	//Accesors
-	const bool isPressed();
-
 	//Functions 
 	void update(int mouseX, int mouseY);
 	

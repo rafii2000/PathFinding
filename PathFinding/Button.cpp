@@ -50,14 +50,6 @@ Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize
 
 
 
-const bool Button::isPressed()
-{
-	if (buttonState == BTN_PRESSED)
-		return true; 
-	
-	return false;
-}
-
 void Button::update(int mouseX, int mouseY)
 {
 	//Idle
