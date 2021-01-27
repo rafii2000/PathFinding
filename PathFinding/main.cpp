@@ -88,8 +88,7 @@ int main()
     
 
 
-
-  
+      
     // Start the game loop
     while (window.isOpen())
     {
@@ -97,7 +96,7 @@ int main()
         //clean up previous loop iteration actions
         CLICKED_BTN = btn_id::NONE;
         CLICK_EVENT = false;    
-
+        
         
         // ------------ EVENT LOOP ------------ //
         // Process events
@@ -343,7 +342,7 @@ int main()
         if (RUN_ALGORITHM == true) {
 
             //sf::sleep(sf::microseconds(10));  //visualization delay
-            nodesBoard.exploreNodes();          //main visualization function
+            //nodesBoard.exploreNodes();          //main visualization function
         }
 
         //condition of ending visualization
