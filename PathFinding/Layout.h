@@ -1,4 +1,6 @@
 #pragma once
+#include "SFML/Graphics.hpp"
+#include "SFML/Window.hpp"
 
 // All values here are proper for 1920x1080 resolution
 
@@ -7,15 +9,11 @@ class Layout
 
 public:
 
-	static void set_MW_TOP_BTNS_X() {
+	static void set_MW_TOP_BTNS_X();
 
-		START_BTN_X = MW_TOP_BTNS_X;
-		BREAK_BTN_X = MW_TOP_BTNS_X + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH) * 1;
-		PATH_RESET_BTN_X = MW_TOP_BTNS_X + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH) * 2;
-		BOARD_RESET_BTN_X = MW_TOP_BTNS_X + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH) * 3;
-		GENERATE_MAZE_BTN_X = MW_TOP_BTNS_X + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH) * 4;
-		OPEN_SETTINGS_BTN_X = MW_TOP_BTNS_X + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH) * 4 + (MW_TOP_BTNS_MARGIN + MW_TOP_BTNS_WIDTH_S) * 1;
-	}
+	static void detectResolution(int screenWidth, int screenHeight);
+
+
 
 public:
 

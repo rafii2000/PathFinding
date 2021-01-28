@@ -180,6 +180,151 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 }
 
 
+// -------- BOARD  FUNCTIONALITIES -------- //
+
+void Board::boardFunctionalities() {
+
+
+	if (isMouseOnBoard == true and boardState == ACTIVE) {
+
+		//drag selected node (startNode or endNode) 
+		if (MOUSE_STATE == mf::LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
+
+			int currentNodeX = mouseToBoardIndexes(mouseX, mouseY).x;
+			int currentNodeY = mouseToBoardIndexes(mouseX, mouseY).y;
+
+			//forbid dragging startNode on obstacles and endNode
+			if (nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
+
+				//prevent from clearing the node, which mouse is pointing and is already highlighted
+				if (&nodesBoard2D[currentNodeY][currentNodeX] != currentDrgged) {
+					previousDrgged = currentDrgged;
+					currentDrgged = &nodesBoard2D[currentNodeY][currentNodeX];
+
+					//swap walkable Node's with starNode 
+					startNodeCords.x = currentNodeX;
+					startNodeCords.y = currentNodeY;
+					nodesBoard2D[currentNodeY][currentNodeX].nodeType = START_NODE;
+					nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Green);
+				}
+
+			}
+
+		}
+		else if (MOUSE_STATE == mf::LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
+
+			int currentNodeX = mouseToBoardIndexes(mouseX, mouseY).x;
+			int currentNodeY = mouseToBoardIndexes(mouseX, mouseY).y;
+
+			//forbid dragging endNode on obstacles and startNode
+			if (nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
+
+				//prevent from clearing the node, which mouse is pointing and is already highlighted
+				if (&nodesBoard2D[currentNodeY][currentNodeX] != currentDrgged) {
+					previousDrgged = currentDrgged;
+					currentDrgged = &nodesBoard2D[currentNodeY][currentNodeX];
+
+					//swap walkable Node's  with endNode                        
+					endNodeCords.x = currentNodeX;
+					endNodeCords.y = currentNodeY;
+					nodesBoard2D[currentNodeY][currentNodeX].nodeType = END_NODE;
+					nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Red);
+				}
+
+			}
+
+		}
+
+
+		//clear doubled startNode
+		if (START_NODE_DRAG_MODE == true) {
+
+			if (previousDrgged != nullptr) {
+				previousDrgged->makeWalkable();
+			}
+		}
+		//clear doubled endNode
+		else if (END_NODE_DRAG_MODE == true) {
+
+			if (previousDrgged != nullptr) {
+				previousDrgged->makeWalkable();
+			}
+		}
+
+
+		//put obstacle on Node, which mouse is pointing
+		if (MOUSE_STATE == mf::LEFT_PRESSED and DRAG_MODE == false) {
+
+			putObstacles(mouseX, mouseY);
+		}
+
+		//remove obstacle from Node is pointed by mouse
+		if (MOUSE_STATE == mf::RIGHT_PRESSED and DRAG_MODE == false) {
+
+			eraseObstacles(mouseX, mouseY);
+		}
+
+
+		//Turn on/off drag mode
+		if (MOUSE_STATE == mf::RELEASED) {
+
+			//Node's color flags
+			sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);
+			sf::Color END_NODE_HOVER = sf::Color(220, 0, 0);
+
+			//START_NODE_DRAG_MODE
+			int startNodeX = startNodeCords.x;
+			int startNodeY = startNodeCords.y;
+
+			//END_NODE_DRAG_MODE
+			int endNodeX = endNodeCords.x;
+			int endNodeY = endNodeCords.y;
+
+			//turn on / turn off START_NODE_DRAG_MODE
+			if (nodesBoard2D[startNodeY][startNodeX].isMouseOn(mouseX, mouseY) == true) {
+
+				START_NODE_DRAG_MODE = true;
+
+				currentDrgged = &nodesBoard2D[startNodeY][startNodeX];
+				nodesBoard2D[startNodeY][startNodeX].node.setFillColor(START_NODE_HOVER);
+			}
+			else {
+
+				START_NODE_DRAG_MODE = false;
+				nodesBoard2D[startNodeY][startNodeX].node.setFillColor(sf::Color::Green);
+			}
+
+			//turn on / turn off END_NODE_DRAG_MODE
+			if (nodesBoard2D[endNodeY][endNodeX].isMouseOn(mouseX, mouseY) == true) {
+
+				END_NODE_DRAG_MODE = true;
+
+				currentDrgged = &nodesBoard2D[endNodeY][endNodeX];
+				nodesBoard2D[endNodeY][endNodeX].node.setFillColor(END_NODE_HOVER);
+			}
+			else {
+				END_NODE_DRAG_MODE = false;
+				nodesBoard2D[endNodeY][endNodeX].node.setFillColor(sf::Color::Red);
+			}
+
+
+			//set DRAG_MODE value (bool DRAG_MODE - additional variable to simplify code)
+			if (START_NODE_DRAG_MODE == true or END_NODE_DRAG_MODE == true) {
+
+				DRAG_MODE = true;
+			}
+			else {
+
+				DRAG_MODE = false;
+				previousDrgged = nullptr;
+				currentDrgged = nullptr;
+			}
+
+		}
+
+	}
+
+}
 
 
 

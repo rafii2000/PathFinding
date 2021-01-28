@@ -10,8 +10,6 @@
 #include "Layout.h"
 
 
-
-
 //mouse properties
 int mouseX;
 int mouseY;
@@ -33,7 +31,7 @@ bool RUN_ALGORITHM = false;
 bool IS_PATH_FOUND = false;
 bool PATH_NOT_EXIST = false;
 
-void detectResolution(int screenWidth, int screenHeight);
+
 
 int main()
 {
@@ -51,7 +49,8 @@ int main()
     sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
     
     //Set proper layout based on screen resolution
-    detectResolution(desktopMode.width, desktopMode.width);
+    Layout::detectResolution(desktopMode.width, desktopMode.width);
+
     std::cout << "Screen resolution: " << desktopMode.width << " x " << desktopMode.height << std::endl;   
 
     // Load font
@@ -192,147 +191,9 @@ int main()
 
         // ------------ BOARD FUNCTIONALITIES ------------ //
 
-        if (nodesBoard.isMouseOnBoard == true and nodesBoard.boardState == ACTIVE) {                 
-           
-            //drag selected node (startNode or endNode) 
-            if (MOUSE_STATE == mf::LEFT_PRESSED and START_NODE_DRAG_MODE == true) {
-
-                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
-                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
-
-                //forbid dragging startNode on obstacles and endNode
-                if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
-
-                    //prevent from clearing the node, which mouse is pointing and is already highlighted
-                    if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
-                        nodesBoard.previousDrgged = nodesBoard.currentDrgged;
-                        nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
-
-                        //swap walkable Node's with starNode 
-                        nodesBoard.startNodeCords.x = currentNodeX;
-                        nodesBoard.startNodeCords.y = currentNodeY;
-                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = START_NODE;
-                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Green);
-                    }                  
-                    
-                }
-                    
-            }
-            else if (MOUSE_STATE == mf::LEFT_PRESSED and END_NODE_DRAG_MODE == true) {
-                
-                int currentNodeX = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).x;
-                int currentNodeY = nodesBoard.mouseToBoardIndexes(mouseX, mouseY).y;
-
-                //forbid dragging endNode on obstacles and startNode
-                if (nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType == WALKABLE) {
-
-                    //prevent from clearing the node, which mouse is pointing and is already highlighted
-                    if (&nodesBoard.nodesBoard2D[currentNodeY][currentNodeX] != nodesBoard.currentDrgged) {
-                        nodesBoard.previousDrgged = nodesBoard.currentDrgged;
-                        nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[currentNodeY][currentNodeX];
-
-                        //swap walkable Node's  with endNode                        
-                        nodesBoard.endNodeCords.x = currentNodeX;
-                        nodesBoard.endNodeCords.y = currentNodeY;
-                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].nodeType = END_NODE;
-                        nodesBoard.nodesBoard2D[currentNodeY][currentNodeX].node.setFillColor(sf::Color::Red);
-                    }
-
-                }
-                    
-            }
-
-
-            //clear doubled startNode
-            if (START_NODE_DRAG_MODE == true) {
-
-                if (nodesBoard.previousDrgged != nullptr) {
-                    nodesBoard.previousDrgged->makeWalkable();
-                }                                                                
-            }
-            //clear doubled endNode
-            else if (END_NODE_DRAG_MODE == true) {
-
-                if (nodesBoard.previousDrgged != nullptr) {
-                    nodesBoard.previousDrgged->makeWalkable();
-                }                                    
-            }
-
-
-            //put obstacle on Node, which mouse is pointing
-            if (MOUSE_STATE == mf::LEFT_PRESSED and DRAG_MODE == false) {
-                
-                nodesBoard.putObstacles(mouseX, mouseY);
-            }
-
-            //remove obstacle from Node is pointed by mouse
-            if (MOUSE_STATE == mf::RIGHT_PRESSED and DRAG_MODE == false ) {
-                
-                nodesBoard.eraseObstacles(mouseX, mouseY);
-            }
-
-
-            //Turn on/off drag mode
-            if (MOUSE_STATE == mf::RELEASED) {                
-                
-                //Node's color flags
-                sf::Color START_NODE_HOVER = sf::Color(0, 220, 0);
-                sf::Color END_NODE_HOVER = sf::Color(220, 0, 0);
-
-                //START_NODE_DRAG_MODE
-                int startNodeX = nodesBoard.startNodeCords.x;
-                int startNodeY = nodesBoard.startNodeCords.y;
-
-                //END_NODE_DRAG_MODE
-                int endNodeX = nodesBoard.endNodeCords.x;
-                int endNodeY = nodesBoard.endNodeCords.y;
-
-               //turn on / turn off START_NODE_DRAG_MODE
-                if (nodesBoard.nodesBoard2D[startNodeY][startNodeX].isMouseOn(mouseX, mouseY) == true) {
-                   
-                    START_NODE_DRAG_MODE = true;
-                   
-                    nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[startNodeY][startNodeX];
-                    nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(START_NODE_HOVER);
-                }
-                else {
-
-                    START_NODE_DRAG_MODE = false;                                     
-                    nodesBoard.nodesBoard2D[startNodeY][startNodeX].node.setFillColor(sf::Color::Green);
-                }
-                
-                //turn on / turn off END_NODE_DRAG_MODE
-                if (nodesBoard.nodesBoard2D[endNodeY][endNodeX].isMouseOn(mouseX, mouseY) == true) {
-
-                    END_NODE_DRAG_MODE = true;
-                  
-                    nodesBoard.currentDrgged = &nodesBoard.nodesBoard2D[endNodeY][endNodeX];
-                    nodesBoard.nodesBoard2D[endNodeY][endNodeX].node.setFillColor(END_NODE_HOVER);
-                }
-                else {                                       
-                    END_NODE_DRAG_MODE = false;                     
-                    nodesBoard.nodesBoard2D[endNodeY][endNodeX].node.setFillColor(sf::Color::Red);
-                }
-
-
-                //set DRAG_MODE value (bool DRAG_MODE - additional variable to simplify code)
-                if (START_NODE_DRAG_MODE == true or END_NODE_DRAG_MODE == true) {
-                    
-                    DRAG_MODE = true;
-                }
-                else {
-
-                    DRAG_MODE = false;
-                    nodesBoard.previousDrgged = nullptr;
-                    nodesBoard.currentDrgged = nullptr;
-                }
-                                
-            }
-
-        }
+        nodesBoard.boardFunctionalities();
 
         // ------------ BOARD FUNCTIONALITIES ------------ //
-
 
 
 
@@ -342,14 +203,14 @@ int main()
         if (RUN_ALGORITHM == true) {
 
             //sf::sleep(sf::microseconds(10));  //visualization delay
-            //nodesBoard.exploreNodes();          //main visualization function
+            nodesBoard.exploreNodes();          //main visualization function
         }
 
         //condition of ending visualization
         if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
 
             if (PATH_NOT_EXIST)
-                appResultLabel.setFillColor(sf::Color(50, 50, 50));
+               appResultLabel.setFillColor(sf::Color(50, 50, 50));
 
             RUN_ALGORITHM = false;
             IS_PATH_FOUND = false;
@@ -394,8 +255,6 @@ int main()
         
 
 
-
-
         // ------------ FPS SECTION ------------ //
 
         currentTime = clock.getElapsedTime();
@@ -409,38 +268,3 @@ int main()
 
 }
 
-
-
-
-void detectResolution(int screenWidth, int screenHeight) {
-
-    //1364 x 768
-    if (screenWidth < 1920 and screenHeight < 1080) {
-
-        //MAIN WINDOW
-        Layout::APP_TITLE_LABLE_FONT_SIZE = 40;
-        Layout::APP_TITLE_LABLE_X = 60;
-        Layout::APP_RESULT_LABLE_FONT_SIZE = 22;
-        Layout::APP_RESULT_LABLE_X = 60;
-        
-        //common properties
-        Layout::MW_TOP_BTNS_X = 725;
-        Layout::MW_TOP_BTNS_Y = 35;
-        Layout::MW_TOP_BTNS_MARGIN = 25;
-        Layout::MW_TOP_BTNS_FONT_SIZE = 17;
-
-        //half common properties
-        Layout::MW_TOP_BTNS_WIDTH = 95;
-        Layout::MW_TOP_BTNS_HEIGHT = 35;
-        Layout::MW_TOP_BTNS_WIDTH_S = 35;
-        Layout::MW_TOP_BTNS_HEIGHT_S = 35;
-
-        //individual properties
-        Layout::set_MW_TOP_BTNS_X();
-;      
-        //SETTINGS WINDOW
-        Layout::FILE_PATH_SAVE_GROUP_Y = 525;
-        Layout::FILE_PATH_LOAD_GROUP_Y = 625;
-    }
-
-}

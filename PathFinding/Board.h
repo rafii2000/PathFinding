@@ -12,6 +12,13 @@
 
 
 extern btn_id CLICKED_BTN;
+
+//drag mode flags
+extern bool DRAG_MODE;
+extern bool START_NODE_DRAG_MODE;
+extern bool END_NODE_DRAG_MODE;
+
+//A*
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
@@ -113,6 +120,14 @@ public:
 	void putObstacles(int mouseX, int mouseY);
 
 	void eraseObstacles(int mouseX, int mouseY);
+
+
+
+	// -------- DIFFRENT FUNCTIONS -------- //
+
+	void buttonsUpdate();
+
+	void boardFunctionalities();
 
 
 
