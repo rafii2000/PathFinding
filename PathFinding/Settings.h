@@ -42,18 +42,20 @@ private:
 	sf::Text nodesInRowLabel;
 	sf::Text nodesInColLabel;
 	sf::Text nodesSizeLable;
+	sf::Text mazeDensityLable;
 	int labelFontSize = 30;
 
 	Textbox nodesInRowTextbox;
 	Textbox nodesInColumnTextbox;
 	Textbox nodeSizeTextbox;
+	Textbox mazeDensityTextbox;
 	Textbox filePathLoadTextbox;
 	Textbox filePathSaveTextbox;
 
 	Button closeSettingsButton;
 	Button saveBoardButtons;
 	Button loadBoardButton;
-	Button applyBoardResizeButton;
+	Button applySettingsChanges;
 
 
 public:
@@ -71,6 +73,8 @@ public:
 	void onApplyButtonClick();
 
 	bool newBoardSizeValidation(int row, int col, int size);
+
+	void newMazeDensityValidation(int value);
 
 	void onSaveBoardButtonClick();
 

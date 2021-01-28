@@ -452,8 +452,6 @@ void Board::generateMaze() {
 	srand((unsigned)time(0));
 
 	clearBoard();
-	
-	int randomRange = 35;
 
 	for (int col = 0; col < nodesColumnAmount; col++) {
 		for (int row = 0; row < nodesRowAmount; row++) {
@@ -462,7 +460,7 @@ void Board::generateMaze() {
 
 				int result = 1 + (rand() % 100);
 
-				if (result <= randomRange)
+				if (result <= mazeDensity)
 					nodesBoard2D[col][row].putObstacles();
 			}
 		}

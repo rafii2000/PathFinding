@@ -185,19 +185,9 @@ int main()
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
 
-
-
-
-
-        // ------------ BOARD FUNCTIONALITIES ------------ //
-
         nodesBoard.boardFunctionalities();
 
-        // ------------ BOARD FUNCTIONALITIES ------------ //
-
-
-
-
+      
         // ------------ A* ALGHORITHM ------------ //              
         
         if (RUN_ALGORITHM == true) {

@@ -6,10 +6,11 @@ Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font) :
 	closeSettingsButton(1525, 850, 200, 50, font, 20, "Close settings", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::CLOSE_SETTINGS_BTN),
 	saveBoardButtons(screenX+50, Layout::FILE_PATH_SAVE_GROUP_Y-5, 130, 50, font, 20, "Save board", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::SAVE_BOARD_BTN),
 	loadBoardButton(screenX + 50, Layout::FILE_PATH_LOAD_GROUP_Y-5, 130, 50, font, 20, "Load board", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::LOAD_BOARD_BTN),
-	applyBoardResizeButton(screenX + 470, 415, 100, 35, font, 18, "Apply", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::APPLY_BOARD_RESIZE_BTN),
+	applySettingsChanges(screenX + 470, 500, 100, 35, font, 18, "Apply", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::APPLY_BOARD_RESIZE_BTN),
 	nodesInRowTextbox(window, font, 30, screenX + 70 + 250, 200, 70, 40, std::to_string(board->nodesRowAmount), 3, 'L'),
 	nodesInColumnTextbox(window, font, 30, screenX + 70 + 250, 275, 70, 40, std::to_string(board->nodesColumnAmount), 3, 'L'),
 	nodeSizeTextbox(window, font, 30, screenX + 70 + 250, 350, 70, 40, std::to_string(board->nodeSize), 3, 'L'),
+	mazeDensityTextbox(window, font, 30, screenX + 70 + 250, 450, 70, 40, std::to_string(board->mazeDensity), 3, 'L'),
 
 	filePathSaveTextbox(window, font, 20, screenX + 50 + 150, Layout::FILE_PATH_SAVE_GROUP_Y, 400, 40, "", 40, 'L', "Type file name"),
 	filePathLoadTextbox(window, font, 20, screenX + 50 + 150, Layout::FILE_PATH_LOAD_GROUP_Y, 400, 40, "", 40, 'L', "Type path to file")
@@ -47,6 +48,11 @@ Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font) :
 	nodesSizeLable.setFont(*font);
 	nodesSizeLable.setCharacterSize(labelFontSize);
 
+	mazeDensityLable.setString("Maze density: ");
+	mazeDensityLable.setPosition(sf::Vector2f(screenX + 50, 450));
+	mazeDensityLable.setFont(*font);
+	mazeDensityLable.setCharacterSize(labelFontSize);
+
 }
 
 
@@ -56,7 +62,7 @@ void Settings::updateButtons()
 	closeSettingsButton.update(mouseX, mouseY);
 	saveBoardButtons.update(mouseX, mouseY);
 	loadBoardButton.update(mouseX, mouseY);
-	applyBoardResizeButton.update(mouseX, mouseY);
+	applySettingsChanges.update(mouseX, mouseY);
 }
 
 void Settings::draw()
@@ -72,11 +78,13 @@ void Settings::draw()
 		window->draw(nodesInRowLabel);
 		window->draw(nodesInColLabel);
 		window->draw(nodesSizeLable);
+		window->draw(mazeDensityLable);
 
 		//Textboxes
 		nodesInRowTextbox.draw();
 		nodesInColumnTextbox.draw();
 		nodeSizeTextbox.draw();
+		mazeDensityTextbox.draw();
 		filePathSaveTextbox.draw();
 		filePathLoadTextbox.draw();
 
@@ -84,7 +92,7 @@ void Settings::draw()
 		//closeSettingsButton.render(window);
 		saveBoardButtons.render(window);
 		loadBoardButton.render(window);
-		applyBoardResizeButton.render(window);
+		applySettingsChanges.render(window);
 
 	}
 }
@@ -144,10 +152,11 @@ void Settings::onApplyButtonClick()
 	int newNodeRowAmt = str_to_int(nodesInRowTextbox.typedText.getString());
 	int newNodeColAmt = str_to_int(nodesInColumnTextbox.typedText.getString());
 	int newNodeSize = str_to_int(nodeSizeTextbox.typedText.getString());
+	int newMazeDensity = str_to_int(mazeDensityTextbox.typedText.getString());
 
-	bool result = newBoardSizeValidation(newNodeRowAmt, newNodeColAmt, newNodeSize);
-
-	if (result) {
+	bool boardSizeResult = newBoardSizeValidation(newNodeRowAmt, newNodeColAmt, newNodeSize);
+	
+	if (boardSizeResult) {
 
 		//initialize new values
 		board->nodesRowAmount = newNodeRowAmt;
@@ -163,12 +172,13 @@ void Settings::onApplyButtonClick()
 		
 	}
 
+	newMazeDensityValidation(newMazeDensity);
+
 	//update Textboxes
 	nodesInRowTextbox.setTextboxString(std::to_string(board->nodesRowAmount));
 	nodesInColumnTextbox.setTextboxString(std::to_string(board->nodesColumnAmount));
 	nodeSizeTextbox.setTextboxString(std::to_string(board->nodeSize));
-
-	
+	mazeDensityTextbox.setTextboxString(std::to_string(board->mazeDensity));	
 
 }
 
@@ -176,10 +186,23 @@ bool Settings::newBoardSizeValidation(int row, int col, int size)
 {
 	//It is not a major thing of a program
 	if (row == 0 || col == 0 || size == 0) return false;	
-	if (row < 5 || col < 5 || size < 5) return false;	
+	if (row < 5 || col < 5 || size < 5) return false;
+	if (row == board->nodesRowAmount && col == board->nodesColumnAmount and size == board->nodeSize) return false;
 	
 	return true;
 }
+
+void Settings::newMazeDensityValidation(int value)
+{
+	//It is not a major thing of a program
+	if (value >= 0 and value <= 100) {
+
+		board->mazeDensity = value;
+	}
+
+}
+
+
 
 void Settings::onSaveBoardButtonClick()
 {	

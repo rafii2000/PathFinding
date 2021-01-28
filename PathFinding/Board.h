@@ -65,6 +65,7 @@ private:
 
 	int nodesRowAmount;
 	int nodesColumnAmount;
+	int mazeDensity = 35;
 	short unsigned boardState = ACTIVE;
 	bool isMouseOnBoard = false;
 	std::vector< std::vector<Node> > nodesBoard2D;
