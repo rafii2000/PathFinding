@@ -105,6 +105,7 @@ void Board::setBoardBordersCords()
 	bottomBorder = lastNodeY + nodeOrigin;
 }
 
+
 void Board::draw()
 {
 	
@@ -180,7 +181,7 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 }
 
 
-// -------- BOARD  FUNCTIONALITIES -------- //
+// -------- DIFFRENT FUNCTIONS -------- //
 
 void Board::boardFunctionalities() {
 
@@ -324,6 +325,31 @@ void Board::boardFunctionalities() {
 
 	}
 
+}
+
+void Board::runVisualization(sf::Text* label, sf::RectangleShape* background) {
+
+
+	if (RUN_ALGORITHM == true) {
+
+		//sf::sleep(sf::microseconds(10));  //visualization delay
+		exploreNodes();						//main visualization function
+	}
+
+	//condition of ending visualization
+	if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
+
+		if (PATH_NOT_EXIST) {
+			label->setFillColor(sf::Color(240, 240, 240));
+			background->setFillColor(sf::Color(50, 50, 50));
+		}
+			
+
+		RUN_ALGORITHM = false;
+		IS_PATH_FOUND = false;
+		PATH_NOT_EXIST = false;
+		boardState = ACTIVE;
+	}
 }
 
 
@@ -515,7 +541,6 @@ void Board::exploreNodes()
 		closedNodes.push_back(&nodesBoard2D[y][x]);			//dodaj wezel do listy wezlow zbadanych(CLOSED)
 		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);	//zmien kolor wezla na kolor wezla o stanie CLOSED
 		openNodes.erase(openNodes.begin() + index);			//usun wezel z listy openNodes
-
 		//std::cout << "ClosedNode: " << closedNodes.size() << " OpenNodes: " << openNodes.size() << std::endl;
 
 	}

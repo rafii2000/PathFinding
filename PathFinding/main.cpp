@@ -47,7 +47,7 @@ int main()
     // Create the main window    
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
-    
+   
     //Set proper layout based on screen resolution
     Layout::detectResolution(desktopMode.width, desktopMode.width);
 
@@ -61,9 +61,13 @@ int main()
     sf::Text appTitle("SFML PathFinding visualization", font, Layout::APP_TITLE_LABLE_FONT_SIZE);
     appTitle.setPosition(sf::Vector2f(Layout::APP_TITLE_LABLE_X, Layout::APP_TITLE_LABLE_Y));
    
-    sf::Text appResultLabel("Path between points doesn't exist", font, Layout::APP_RESULT_LABLE_FONT_SIZE);
+    sf::Text appResultLabel("Path between points doesn't exist!", font, Layout::APP_RESULT_LABLE_FONT_SIZE);
     appResultLabel.setPosition(sf::Vector2f(Layout::APP_RESULT_LABLE_X, Layout::APP_RESULT_LABLE_Y));
     appResultLabel.setFillColor(sf::Color::Transparent);
+    sf::RectangleShape appResultLabelBackground;
+    appResultLabelBackground.setPosition(sf::Vector2f(Layout::APP_RESULT_LABLE_BACKGROUND_X, Layout::APP_RESULT_LABLE_BACKGROUND_Y));
+    appResultLabelBackground.setSize({ (float)Layout::APP_RESULT_LABLE_BACKGROUND_WIDTH, (float)Layout::APP_RESULT_LABLE_BACKGROUND_HEIGHT });
+    appResultLabelBackground.setFillColor(sf::Color::Transparent);    
     
     sf::Text appFPSLabel("150", font, 16);
     appFPSLabel.setPosition(10,5);
@@ -94,7 +98,7 @@ int main()
 
         //clean up previous loop iteration actions
         CLICKED_BTN = btn_id::NONE;
-        CLICK_EVENT = false;    
+        CLICK_EVENT = false;
         
         
         // ------------ EVENT LOOP ------------ //
@@ -123,6 +127,7 @@ int main()
                 MOUSE_STATE = mf::RELEASED;
                 CLICK_EVENT = true;              
                 appResultLabel.setFillColor(sf::Color::Transparent);
+                appResultLabelBackground.setFillColor(sf::Color::Transparent);
             }
 
             if (event.type == sf::Event::MouseMoved) {
@@ -184,36 +189,10 @@ int main()
 
         // ------------ CALL FUNCTION ON BUTTON CLICK  ------------ //
 
-
         nodesBoard.boardFunctionalities();
 
-      
-        // ------------ A* ALGHORITHM ------------ //              
-        
-        if (RUN_ALGORITHM == true) {
-
-            //sf::sleep(sf::microseconds(10));  //visualization delay
-            nodesBoard.exploreNodes();          //main visualization function
-        }
-
-        //condition of ending visualization
-        if (IS_PATH_FOUND == true or PATH_NOT_EXIST == true) {
-
-            if (PATH_NOT_EXIST)
-               appResultLabel.setFillColor(sf::Color(50, 50, 50));
-
-            RUN_ALGORITHM = false;
-            IS_PATH_FOUND = false;
-            PATH_NOT_EXIST = false;
-            nodesBoard.boardState = ACTIVE;           
-        }  
-        
-        // ------------ A* ALGHORITHM ------------ //
-
+        nodesBoard.runVisualization(&appResultLabel, &appResultLabelBackground);
        
-       
-
-
         
         // ------------ RENDERING FUNCTIONS ------------ //
         //object render sequence is important, objects cover each other
@@ -224,10 +203,9 @@ int main()
 
         // Draw elements
         window.draw(appTitle);
-        window.draw(appResultLabel);
-        window.draw(appFPSLabel);       
-        
-        nodesBoard.draw();        
+        window.draw(appFPSLabel);        
+       
+        nodesBoard.draw();
        
         startButton.render(&window);
         breakButton.render(&window);
@@ -237,6 +215,9 @@ int main()
         generateMaze.render(&window);
 
         settingsWindow.draw();  //render last, must cover other elements
+
+        window.draw(appResultLabelBackground);
+        window.draw(appResultLabel);
 
         // Update the window
         window.display();

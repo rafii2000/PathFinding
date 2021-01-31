@@ -13,8 +13,6 @@ public:
 
 	static void detectResolution(int screenWidth, int screenHeight);
 
-
-
 public:
 
 	// ------------------ MAIN WINDOW ------------------ //	
@@ -48,11 +46,18 @@ public:
 	inline static int APP_TITLE_LABLE_X = 75;
 	inline static int APP_TITLE_LABLE_Y = 20;
 	inline static int APP_TITLE_LABLE_FONT_SIZE = 50;
-	
+		
 	//app result lable
-	inline static int APP_RESULT_LABLE_X = 75;
-	inline static int APP_RESULT_LABLE_Y = 80;
+	/*inline static int APP_RESULT_LABLE_X = 75;
+	inline static int APP_RESULT_LABLE_Y = 80;*/
+	inline static int APP_RESULT_LABLE_X = 780;
+	inline static int APP_RESULT_LABLE_Y = 390;
 	inline static int APP_RESULT_LABLE_FONT_SIZE = 25;
+	inline static int APP_RESULT_LABLE_BACKGROUND_X = 710;
+	inline static int APP_RESULT_LABLE_BACKGROUND_Y = 310;
+	inline static int APP_RESULT_LABLE_BACKGROUND_WIDTH = 500;
+	inline static int APP_RESULT_LABLE_BACKGROUND_HEIGHT = 200;
+
 	
 
 	// ---------------- SETTINGS WINDOW ---------------- //	

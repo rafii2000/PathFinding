@@ -126,10 +126,9 @@ public:
 
 	// -------- DIFFRENT FUNCTIONS -------- //
 
-	void buttonsUpdate();
-
 	void boardFunctionalities();
 
+	void runVisualization(sf::Text* label, sf::RectangleShape* background);
 
 
 

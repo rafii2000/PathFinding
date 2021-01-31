@@ -141,6 +141,7 @@ void Settings::closeWindowSettings()
 	nodesInRowTextbox.setTextboxString(std::to_string(board->nodesRowAmount));
 	nodesInColumnTextbox.setTextboxString(std::to_string(board->nodesColumnAmount));
 	nodeSizeTextbox.setTextboxString(std::to_string(board->nodeSize));
+	mazeDensityTextbox.setTextboxString(std::to_string(board->mazeDensity));
 
 	//restore Textboxes placeholders
 	filePathSaveTextbox.setPlaceholderInTextbox();
