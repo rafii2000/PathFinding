@@ -43,3 +43,13 @@ void Layout::detectResolution(int screenWidth, int screenHeight)
         FILE_PATH_LOAD_GROUP_Y = 625;
     }
 }
+
+sf::Font Layout::loadDefaultFont()
+{
+
+    sf::Font font;
+   
+    font.loadFromFile("arial_narrow_7.ttf");
+
+    return (sf::Font&&)font;
+}

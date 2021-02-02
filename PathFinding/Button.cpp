@@ -1,6 +1,7 @@
 #include "Button.h"
 
 
+
 //constructor
 Button::Button(int x, int y, int width, int height, sf::Font* font, int fontSize, 
 	std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor,

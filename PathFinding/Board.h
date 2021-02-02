@@ -90,9 +90,9 @@ private:
 public:
 
 	//constructor
-	Board(sf::RenderWindow& window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
+	Board(sf::RenderWindow* window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
 
-		this->window = &window;
+		this->window = window;
 		this->nodeSize = nodeSize;
 		this->nodeOrigin = nodeSize / 2;
 		this->nodeBorder = nodeBorder;

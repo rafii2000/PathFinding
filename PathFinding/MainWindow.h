@@ -14,7 +14,7 @@ friend int main();
 
 
 private:
-	sf::RenderWindow& renderTarget;
+	sf::RenderWindow* renderTarget;
 
 
 	Button startButton;
@@ -25,23 +25,31 @@ private:
 	Button openSettingsButton;
 
 	Board nodesBoard;
-	Settings settingsWindow;
+	Settings settingsPanel;
 
 	sf::Text appTitle;
 	sf::Text appResultLabel;
 	sf::Text appFPSLabel;
 
+	sf::RectangleShape appResultLabelBackground;
+
+	// FPS variables
+	float fps;
+	sf::Clock clock = sf::Clock::Clock();
+	sf::Time previousTime = clock.getElapsedTime();
+	sf::Time currentTime;
 
 
 public:
 
 	//construktor
-	MainWindow(sf::RenderWindow& renderTarget, sf::Font font);
+	MainWindow(sf::RenderWindow* renderTarget);
 
-	void drawButtons();
+	void fpsCounter();
 
-	void drawLables();
+	void update();
 
+	void draw();
 
 
 };

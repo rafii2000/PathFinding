@@ -13,7 +13,15 @@ public:
 
 	static void detectResolution(int screenWidth, int screenHeight);
 
+private:
+	static sf::Font loadDefaultFont();
+
+	
+
 public:
+
+
+	inline static sf::Font defaultFont = loadDefaultFont();
 
 	// ------------------ MAIN WINDOW ------------------ //	
 	

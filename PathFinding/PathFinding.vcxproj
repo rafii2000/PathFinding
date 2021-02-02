@@ -151,6 +151,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Layout.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Textbox.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Layout.h" />
+    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Textbox.h" />
