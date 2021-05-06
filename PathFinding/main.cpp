@@ -42,7 +42,10 @@ int main()
     // Create the main window    
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode(desktopMode.width, desktopMode.height-40), "SFML PathFinding", sf::Style::Titlebar | sf::Style::Close);
-   
+    //window.setFramerateLimit(320);
+    //window.setVerticalSyncEnabled(true);
+
+
     //Set proper layout based on screen resolution
     Layout::detectResolution(desktopMode.width, desktopMode.width);
 
@@ -121,7 +124,17 @@ int main()
         // ------------ RENDER WINDOW ------------ //
         
         // Clear screen
-        window.clear(sf::Color(170, 170, 170));
+        //window.clear(sf::Color(170, 170, 170));
+        if (RUN_ALGORITHM == true and Settings::fastVisualization == true){        
+            
+        }
+        else{
+            window.clear(sf::Color(170, 170, 170));
+            //std::cout << "wchodze tu" << std::endl;
+        } 
+
+        std::cout << RUN_ALGORITHM << " " << Settings::fastVisualization << std::endl;
+        
         window.setPosition(sf::Vector2i(-8, 0));
 
         //Draw content

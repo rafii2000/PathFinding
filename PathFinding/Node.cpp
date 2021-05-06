@@ -52,8 +52,7 @@ void Node::makeWalkable()
 	node.setFillColor(WALKABLE_COLOR);
 }
 
-void Node::draw()
-{
+void Node::draw(){
 
 	window->draw(node);
 }

@@ -20,12 +20,13 @@ friend int main();
 
 public:
 	inline static bool isOpen = false;
+	inline static bool fastVisualization = false;
 	
 
 private:
 
 	//settings card properties
-	const int width = 620;	//const value
+	const int width = 650;	//const value
 	const int height;		//take user display height
 	const int screenX;		//take user display width minus self width
 	const int screenY = 0;	//const value 
@@ -43,12 +44,14 @@ private:
 	sf::Text nodesInColLabel;
 	sf::Text nodesSizeLable;
 	sf::Text mazeDensityLable;
+	sf::Text fastFizualizationLabel;
 	int labelFontSize = 30;
 
 	Textbox nodesInRowTextbox;
 	Textbox nodesInColumnTextbox;
 	Textbox nodeSizeTextbox;
 	Textbox mazeDensityTextbox;
+	Textbox fastVisualizationTextbox;
 	Textbox filePathLoadTextbox;
 	Textbox filePathSaveTextbox;
 
@@ -56,6 +59,7 @@ private:
 	Button saveBoardButtons;
 	Button loadBoardButton;
 	Button applySettingsChanges;
+	Button onOffFastVisualizationButton;
 
 
 public:
@@ -79,6 +83,8 @@ public:
 	void onSaveBoardButtonClick();
 
 	void onLoadBoardButtonClick();
+
+	void onFastVisualizationButtonClick();
 
 
 

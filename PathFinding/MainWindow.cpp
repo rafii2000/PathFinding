@@ -18,10 +18,6 @@ MainWindow::MainWindow(sf::RenderWindow* renderTarget):
     openSettingsButton(Layout::OPEN_SETTINGS_BTN_X, Layout::MW_TOP_BTNS_Y, Layout::MW_TOP_BTNS_WIDTH_S, Layout::MW_TOP_BTNS_HEIGHT_S, &Layout::defaultFont, Layout::MW_TOP_BTNS_FONT_SIZE, "", Layout::MW_TOP_BTNS_IDLE, Layout::MW_TOP_BTNS_HOVER, Layout::MW_TOP_BTNS_CLICK, btn_id::OPEN_SETTINGS_BTN, "settings2.png")
 
 {
-
-
-   
-
     // Create lables   
     appTitle.setPosition(sf::Vector2f(Layout::APP_TITLE_LABLE_X, Layout::APP_TITLE_LABLE_Y));
    
@@ -31,8 +27,7 @@ MainWindow::MainWindow(sf::RenderWindow* renderTarget):
     appFPSLabel.setPosition(10, 5);
     appFPSLabel.setFillColor(sf::Color::Blue);
    
-
-    // Create lables background
+    // Create lable background
     appResultLabelBackground.setPosition(sf::Vector2f(Layout::APP_RESULT_LABLE_BACKGROUND_X, Layout::APP_RESULT_LABLE_BACKGROUND_Y));
     appResultLabelBackground.setSize({ (float)Layout::APP_RESULT_LABLE_BACKGROUND_WIDTH, (float)Layout::APP_RESULT_LABLE_BACKGROUND_HEIGHT });
     appResultLabelBackground.setFillColor(sf::Color::Transparent);
@@ -89,7 +84,12 @@ void MainWindow::draw()
     renderTarget->draw(appTitle);
     renderTarget->draw(appFPSLabel);
 
-    nodesBoard.draw();
+    if(RUN_ALGORITHM == true and Settings::fastVisualization == true) {
+        //std::cout << "nie powinno mnie tu byc" << std::endl;
+    }
+    else {
+        nodesBoard.draw();        
+    }
 
     startButton.render(renderTarget);
     breakButton.render(renderTarget);

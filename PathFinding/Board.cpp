@@ -181,6 +181,7 @@ void Board::eraseObstacles(int mouseX, int mouseY)
 }
 
 
+
 // -------- DIFFRENT FUNCTIONS -------- //
 
 void Board::boardFunctionalities() {
@@ -493,8 +494,6 @@ void Board::generateMaze() {
 	}
 }
 
-// -------- BUTTONS FUNCTION -------- //
-
 
 
 
@@ -516,6 +515,8 @@ void Board::exploreNodes()
 
 		nodesBoard2D[y][x].nodeState = CLOSED;		// ustaw stan startNode's na CLOSED
 		closedNodes.push_back(&nodesBoard2D[y][x]); // dodaj startNode do closedNodes
+
+		
 	}
 	else {
 			
@@ -537,11 +538,15 @@ void Board::exploreNodes()
 		x = nextMasterNode->x;	//przypisuje wspolrzedna X wybranego wezla 
 		y = nextMasterNode->y;	//przypisuje wspolrzedna Y wybranego wezla
 
+		
+
 		nodesBoard2D[y][x].nodeState = CLOSED;				//zmien stan wezla na CLOSED
 		closedNodes.push_back(&nodesBoard2D[y][x]);			//dodaj wezel do listy wezlow zbadanych(CLOSED)
 		nodesBoard2D[y][x].node.setFillColor(LIGHT_CYAN);	//zmien kolor wezla na kolor wezla o stanie CLOSED
 		openNodes.erase(openNodes.begin() + index);			//usun wezel z listy openNodes
 		//std::cout << "ClosedNode: " << closedNodes.size() << " OpenNodes: " << openNodes.size() << std::endl;
+
+		nodesBoard2D[y][x].draw();
 
 	}
 
@@ -686,7 +691,6 @@ void Board::showPath()
 
 }
 
-// -------- A* ALGORITHM LOGIC -------- //
 
 
 
@@ -821,7 +825,6 @@ void Board::createBoardFromFile(std::string fileName)
 	
 }
 
-// -------- SETTINGS PANEL -------- //
 
 
 

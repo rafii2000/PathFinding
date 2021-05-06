@@ -1,16 +1,19 @@
 #include "Settings.h"
 
-Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font) :
+Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font):
 	screenX(window->getSize().x - width),
 	height(window->getSize().y),
 	closeSettingsButton(1525, 850, 200, 50, font, 20, "Close settings", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::CLOSE_SETTINGS_BTN),
 	saveBoardButtons(screenX+50, Layout::FILE_PATH_SAVE_GROUP_Y-5, 130, 50, font, 20, "Save board", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::SAVE_BOARD_BTN),
-	loadBoardButton(screenX + 50, Layout::FILE_PATH_LOAD_GROUP_Y-5, 130, 50, font, 20, "Load board", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::LOAD_BOARD_BTN),
-	applySettingsChanges(screenX + 470, 500, 100, 35, font, 18, "Apply", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::APPLY_BOARD_RESIZE_BTN),
+	loadBoardButton(screenX+50, Layout::FILE_PATH_LOAD_GROUP_Y-5, 130, 50, font, 20, "Load board", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::LOAD_BOARD_BTN),
+	applySettingsChanges(screenX + 475, 435, 100, 35, font, 18, "Apply", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::APPLY_BOARD_RESIZE_BTN),
+	onOffFastVisualizationButton(screenX + 475, 555, 100, 35, font, 18, "On / Off", sf::Color(170, 170, 170), sf::Color(150, 150, 150), sf::Color(120, 120, 120), btn_id::ON_OFF_FAST_VISUALIZATION_BTN),
+	
 	nodesInRowTextbox(window, font, 30, screenX + 70 + 250, 200, 70, 40, std::to_string(board->nodesRowAmount), 3, 'L'),
 	nodesInColumnTextbox(window, font, 30, screenX + 70 + 250, 275, 70, 40, std::to_string(board->nodesColumnAmount), 3, 'L'),
 	nodeSizeTextbox(window, font, 30, screenX + 70 + 250, 350, 70, 40, std::to_string(board->nodeSize), 3, 'L'),
-	mazeDensityTextbox(window, font, 30, screenX + 70 + 250, 450, 70, 40, std::to_string(board->mazeDensity), 3, 'L'),
+	mazeDensityTextbox(window, font, 30, screenX + 70 + 250, 425, 70, 40, std::to_string(board->mazeDensity), 3, 'L'),
+	fastVisualizationTextbox(window, font, 30, screenX + 70 + 250, 550, 70, 40, "OFF", 3, 'L'),
 
 	filePathSaveTextbox(window, font, 20, screenX + 50 + 150, Layout::FILE_PATH_SAVE_GROUP_Y, 400, 40, "", 40, 'L', "Type file name"),
 	filePathLoadTextbox(window, font, 20, screenX + 50 + 150, Layout::FILE_PATH_LOAD_GROUP_Y, 400, 40, "", 40, 'L', "Type path to file")
@@ -27,9 +30,8 @@ Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font) :
 	overlapRect.setPosition(0, 0);
 	overlapRect.setSize({ (float)window->getSize().x, (float)window->getSize().y });
 
-
 	windowTitle.setString("Settings");
-	windowTitle.setPosition(sf::Vector2f(screenX + 225, 40));
+	windowTitle.setPosition(sf::Vector2f(screenX + 250, 40));
 	windowTitle.setFont(*font);
 	windowTitle.setCharacterSize(50);
 
@@ -49,9 +51,14 @@ Settings::Settings(sf::RenderWindow* window, Board* board, sf::Font* font) :
 	nodesSizeLable.setCharacterSize(labelFontSize);
 
 	mazeDensityLable.setString("Maze density: ");
-	mazeDensityLable.setPosition(sf::Vector2f(screenX + 50, 450));
+	mazeDensityLable.setPosition(sf::Vector2f(screenX + 50, 425));
 	mazeDensityLable.setFont(*font);
 	mazeDensityLable.setCharacterSize(labelFontSize);
+
+	fastFizualizationLabel.setString("Fast visualization:");
+	fastFizualizationLabel.setPosition(sf::Vector2f(screenX + 50, 550));
+	fastFizualizationLabel.setFont(*font);
+	fastFizualizationLabel.setCharacterSize(labelFontSize);
 
 }
 
@@ -63,6 +70,7 @@ void Settings::updateButtons()
 	saveBoardButtons.update(mouseX, mouseY);
 	loadBoardButton.update(mouseX, mouseY);
 	applySettingsChanges.update(mouseX, mouseY);
+	onOffFastVisualizationButton.update(mouseX, mouseY);
 }
 
 void Settings::draw()
@@ -79,12 +87,14 @@ void Settings::draw()
 		window->draw(nodesInColLabel);
 		window->draw(nodesSizeLable);
 		window->draw(mazeDensityLable);
+		window->draw(fastFizualizationLabel);
 
 		//Textboxes
 		nodesInRowTextbox.draw();
 		nodesInColumnTextbox.draw();
 		nodeSizeTextbox.draw();
 		mazeDensityTextbox.draw();
+		fastVisualizationTextbox.draw();
 		filePathSaveTextbox.draw();
 		filePathLoadTextbox.draw();
 
@@ -93,6 +103,7 @@ void Settings::draw()
 		saveBoardButtons.render(window);
 		loadBoardButton.render(window);
 		applySettingsChanges.render(window);
+		onOffFastVisualizationButton.render(window);
 
 	}
 }
@@ -116,6 +127,9 @@ void Settings::callFunctionOnButtonClick()
 	}
 	else if (CLICKED_BTN == btn_id::LOAD_BOARD_BTN) {
 		onLoadBoardButtonClick();
+	}
+	else if (CLICKED_BTN == btn_id::ON_OFF_FAST_VISUALIZATION_BTN) {
+		onFastVisualizationButtonClick();
 	}
 
 	//close settinsWindow on click outside the settings card
@@ -267,6 +281,17 @@ void Settings::onLoadBoardButtonClick()
 	nodesInRowTextbox.setTextboxString(std::to_string(board->nodesRowAmount));
 	nodesInColumnTextbox.setTextboxString(std::to_string(board->nodesColumnAmount));
 	nodeSizeTextbox.setTextboxString(std::to_string(board->nodeSize));
+
+}
+
+void Settings::onFastVisualizationButtonClick() {
+
+	fastVisualization = !fastVisualization;
+
+	if (fastVisualization == true)
+		fastVisualizationTextbox.typedText.setString("ON");
+	else
+		fastVisualizationTextbox.typedText.setString("OFF");		
 
 }
 

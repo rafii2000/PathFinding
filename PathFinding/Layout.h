@@ -71,8 +71,8 @@ public:
 	// ---------------- SETTINGS WINDOW ---------------- //	
 	
 	//Text fields
-	inline static int FILE_PATH_SAVE_GROUP_Y = 655;
-	inline static int FILE_PATH_LOAD_GROUP_Y = 755;
+	inline static int FILE_PATH_SAVE_GROUP_Y = 685;
+	inline static int FILE_PATH_LOAD_GROUP_Y = 785;
 
 };
 
