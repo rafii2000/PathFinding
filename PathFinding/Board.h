@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "SFML/Graphics.hpp"
@@ -7,40 +8,46 @@
 
 #include "Constants.h"
 #include "Node.h"
+#include "Settings.h"
 
-
-
-
-enum board_states { ACTIVE = 0, BLOCK };  //ACTIVE jest nie fajne EDITABLE chyba lepsze
 
 extern btn_id CLICKED_BTN;
 
+//drag mode flags
+extern bool DRAG_MODE;
+extern bool START_NODE_DRAG_MODE;
+extern bool END_NODE_DRAG_MODE;
+
+//A*
 extern bool RUN_ALGORITHM;
 extern bool IS_PATH_FOUND;
 extern bool PATH_NOT_EXIST;
 
-
+enum board_states { ACTIVE = 0, BLOCK };
 
 struct Coordinates {
 	int x;
 	int y;
 };
 
+
 class Board
 {
 
-friend int main(); //zeby to ususnac to isMouseOnBoard i boardState musza byc public
+friend int main();
+friend class Settings;
 
 
+	
 private:
+
+	//Window
+	sf::RenderWindow* window;
 
 	//Node's properties
 	int nodeSize;
 	int nodeBorder;
-	int nodeOrigin;
-	int nodesRowAmount;
-	int nodesColumnAmount;
-
+	int nodeOrigin;	
 
 	//Node's colors flags
 	sf::Color LIGHT_GREEN = sf::Color(128, 255, 0, 200);
@@ -49,16 +56,18 @@ private:
 	sf::Color START_NODE_HOVER = sf::Color(0, 235, 0);
 	sf::Color END_NODE_HOVER = sf::Color(225, 0, 0);
 
-	
+
 	//Board
 	int leftBorder;
 	int topBorder;
 	int rightBorder;
 	int bottomBorder;
 
+	int nodesRowAmount;
+	int nodesColumnAmount;
+	int mazeDensity = 35;
 	short unsigned boardState = ACTIVE;
 	bool isMouseOnBoard = false;
-	sf::RenderWindow* window;
 	std::vector< std::vector<Node> > nodesBoard2D;
 
 
@@ -71,43 +80,39 @@ private:
 	Coordinates startNodeCords;
 	Coordinates endNodeCords;
 	Node* nextMasterNode = nullptr; // maybe nextClosedNode would be a better name ?
-
+	std::vector<Node*> openNodes;
+	std::vector<Node*> closedNodes;
 	int diagonalCost = 14;
 	int forwardCost = 10;
-
-	std::vector<Node*> openNodes;  //openNodes
-	std::vector<Node*> closedNodes;  //closedNodes
-
 
 
 
 public:
 
 	//constructor
-	Board(sf::RenderWindow& window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
+	Board(sf::RenderWindow* window, int nodeSize, int nodeBorder,  int nodesRowAmt, int nodesColAmt) {
 
-		this->window = &window;
+		this->window = window;
 		this->nodeSize = nodeSize;
 		this->nodeOrigin = nodeSize / 2;
 		this->nodeBorder = nodeBorder;
 		this->nodesRowAmount = nodesRowAmt;
 		this->nodesColumnAmount = nodesColAmt;
-
+		
+		calculateBoardSize();
 		createBoard();
 		setBoardBordersCords();
 	}
 
 
 
+	void calculateBoardSize();
+
 	void createBoard();
 
 	void setBoardBordersCords();
 
-	void draw();
-
-	
-
-	//Functionalities
+	void draw();	
 
 	Coordinates mouseToBoardIndexes(int mouseX, int mouseY);
 
@@ -117,6 +122,17 @@ public:
 
 	void eraseObstacles(int mouseX, int mouseY);
 
+
+
+	// -------- DIFFRENT FUNCTIONS -------- //
+
+	void boardFunctionalities();
+
+	void runVisualization(sf::Text* label, sf::RectangleShape* background);
+
+
+
+	// -------- BUTTONS FUNCTION -------- //
 	
 	void callFunctionOnButtonClick();
 
@@ -128,9 +144,12 @@ public:
 
 	void resetAlgorithmAttributes();
 
+	void generateMaze();
+		
 
 
-	// -------- A* alghoritm -------- //
+
+	// -------- A* ALGORITHM LOGIC -------- //
 
 	void exploreNodes();
 
@@ -143,12 +162,13 @@ public:
 	void showPath();
 
 	bool isNodeInBoard(int x, int y);
-
-	// -------- A* alghoritm -------- //
 	
 
-	
 
+
+	// -------- SETTINGS PANEL-------- //
+
+	void createBoardFromFile(std::string fileName);
 
 
 };

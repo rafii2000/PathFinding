@@ -7,33 +7,34 @@
 
 
 
-extern mf mouseState;
+extern mf MOUSE_STATE;
 extern btn_id CLICKED_BTN;
-
-
 extern bool CLICK_EVENT;
-
-
+extern bool RUN_ALGORITHM;
 
 
 //Opis dzialania przyciskow:
 //START - rozpoczyna  wizualizacje, blokuje dostep do tablicy, przywraca domysle atrybuty Node'om ktorych nodeType = WALKABLE
 //BREAK - zatrzymuje wizualizacje, odblokowuje dostep do tablicy
-//PATH_RESET - przywraca atrybuity domyslne wszystkim, ktore zostaly zaznaczone jako CLOSED i OPEN
-//BOARD_RESET - przywraca atrybuity domyslne wszystkim wez³om, z wyj¹tkiem startNode  i endNode
+//PATH_RESET - przywraca atrybuity domyslne wszystkim Node'om, ktore zostaly zaznaczone jako CLOSED i OPEN
+//BOARD_RESET - przywraca atrybuity domyslne wszystkim Node'om, z wyj¹tkiem startNode  i endNode
 
 
-enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_ACTIVE };
+enum button_states { BTN_IDLE = 0, BTN_HOVER, BTN_PRESSED };
 
-class Button: sf::RectangleShape
+class Button
 {
 	
 private:
-
-	short unsigned buttonState;
+	
 	btn_id buttonID;
+	std::string texturePath="";
+	short unsigned buttonState;
+	int fontSize;
 
 	sf::RectangleShape shape;
+	sf::Texture texture;
+	sf::Sprite sprite;
 	sf::Font* font;
 	sf::Text text;
 	
@@ -45,30 +46,17 @@ private:
 	
 public:
 
-	Button(int x, int y, int width, int height, sf::Font* font, std::string text, sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, btn_id buttonID);
+	
+	//constructor
+	Button(int x, int y, int width, int height, sf::Font* font, int fontSize, std::string text,
+		sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor, 
+		btn_id buttonID, std::string texturePath="");
 
 	
-	//Accesors
-	const bool isPressed();
-
 	//Functions 
 	void update(int mouseX, int mouseY);
 	
 	void render(sf::RenderWindow* window);
-
-
-	void callButtonFunction();
-
-	void onStartButtonClick();
-
-	void onBreakButtonClick();
-
-	void onPathResetButtonClick();
-
-	void onBoardResetButtonClick();
-
-	
-
 	
 };
 
